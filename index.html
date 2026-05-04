@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Clock In App Firebase</title>
+
+  <style>
+    :root{
+      --bg:#0f172a;
+      --card:#1f2937;
+      --muted:#94a3b8;
+      --text:#f8fafc;
+      --accent:#22c55e;
+      --accent2:#3b82f6;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --purple:#8b5cf6;
+      --cyan:#06b6d4;
+      --border:#334155;
+      --selected-bg: rgba(239,68,68,.16);
+      --selected-border:#f87171;
+      --red-text:#f87171;
+      --green-text:#4ade80;
+      --orange-text:#fb923c;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:linear-gradient(180deg,#0b1220,#111827 40%,#0f172a);
+      color:var(--text);
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .wrap{
+      max-width:1280px;
+      margin:0 auto;
+      padding:16px;
+    }
+
+    h1{
+      margin:0 0 8px;
+      font-size:26px;
+      line-height:1.2;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:360px 1fr;
+      gap:18px;
+    }
+
+    @media (max-width:1050px){
+      .grid{grid-template-columns:1fr}
+      .wrap{padding:12px}
+      h1{font-size:24px}
+    }
+
+    .card{
+      background:rgba(31,41,55,.92);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      margin-bottom:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+
+    .card h2{
+      margin:0 0 14px;
+      font-size:18px;
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      color:#cbd5e1;
+      margin:12px 0 6px;
+    }
+
+    input,select,button{
+      width:100%;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background:#0b1220;
+      color:var(--text);
+      padding:12px 14px;
+      font-size:15px;
+    }
+
+    input[type="checkbox"]{
+      width:auto;
+      transform:scale(1.15);
+    }
+
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .row3{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+    }
+
+    @media (max-width:760px){
+      .row,.row3{grid-template-columns:1fr}
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .toolbar button{
+      flex:1 1 160px;
+    }
+
+    .btn{
+      cursor:pointer;
+      font-weight:800;
+      border:none;
+      user-select:none;
+    }
+
+    .btn:active{
+      transform:scale(.98);
+    }
+
+    .btn.green{background:#22c55e;color:#052e16}
+    .btn.blue{background:#3b82f6;color:#fff}
+    .btn.red{background:#ef4444;color:#fff}
+    .btn.gray{background:#334155;color:#fff}
+    .btn.warn{background:#f59e0b;color:#1f1300}
+    .btn.purple{background:#8b5cf6;color:#fff}
+    .btn.cyan{background:#06b6d4;color:#06232a}
+    .btn.dark{background:#111827;color:#fff;border:1px solid var(--border)}
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .status{
+      padding:12px 14px;
+      border-radius:14px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      margin-top:12px;
+    }
+
+    .status .big{
+      font-size:17px;
+      font-weight:900;
+      margin-bottom:6px;
+    }
+
+    .pill{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      margin-left:6px;
+      white-space:nowrap;
+    }
+
+    .pill.working{
+      background:rgba(34,197,94,.16);
+      color:#86efac;
+      border:1px solid rgba(34,197,94,.35);
+    }
+
+    .pill.break{
+      background:rgba(245,158,11,.16);
+      color:#fde68a;
+      border:1px solid rgba(245,158,11,.35);
+    }
+
+    .pill.off{
+      background:rgba(148,163,184,.12);
+      color:#cbd5e1;
+      border:1px solid rgba(148,163,184,.2);
+    }
+
+    .pill.admin{
+      background:rgba(59,130,246,.16);
+      color:#bfdbfe;
+      border:1px solid rgba(59,130,246,.35);
+    }
+
+    .staff-list{
+      display:grid;
+      gap:8px;
+      margin-top:14px;
+      max-height:460px;
+      overflow:auto;
+      padding-right:2px;
+    }
+
+    .staff-item{
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#0b1220;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:flex-start;
+      transition:.15s ease;
+    }
+
+    .staff-item.selected{
+      background:var(--selected-bg);
+      border-color:var(--selected-border);
+      box-shadow:0 0 0 1px rgba(248,113,113,.25) inset;
+    }
+
+    .staff-name{
+      font-weight:900;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:170px;
+    }
+
+    .staff-meta{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.45;
+    }
+
+    .staff-actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      flex:0 0 auto;
+      max-width:170px;
+    }
+
+    .staff-actions button{
+      width:auto;
+      min-width:54px;
+      padding:8px 10px;
+      font-size:12px;
+      border-radius:10px;
+      white-space:nowrap;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      font-size:14px;
+    }
+
+    th,td{
+      padding:12px 10px;
+      border-bottom:1px solid var(--border);
+      text-align:left;
+      vertical-align:top;
+      white-space:nowrap;
+    }
+
+    th{
+      color:#cbd5e1;
+      font-size:13px;
+    }
+
+    .clock{
+      font-size:23px;
+      font-weight:900;
+      letter-spacing:.4px;
+      margin:6px 0 0;
+    }
+
+    .summary-box{
+      margin-top:14px;
+      padding:14px;
+      border-radius:16px;
+      background:rgba(34,197,94,.08);
+      border:1px solid rgba(34,197,94,.28);
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    @media (max-width:1000px){
+      .summary-grid{grid-template-columns:1fr 1fr}
+    }
+
+    @media (max-width:600px){
+      .summary-grid{grid-template-columns:1fr}
+    }
+
+    .metric{
+      background:#0b1220;
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:14px;
+    }
+
+    .metric .label{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .metric .value{
+      font-size:18px;
+      font-weight:900;
+      margin-top:6px;
+    }
+
+    .action-col{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .mini-btn{
+      padding:8px 10px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:800;
+      width:auto;
+    }
+
+    .mini-btn.edit{background:#f59e0b;color:#1f1300}
+    .mini-btn.delete{background:#ef4444;color:#fff}
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.65);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      z-index:9999;
+    }
+
+    .modal.show{display:flex}
+
+    .modal-card{
+      width:min(820px,100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#111827;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+
+    .modal-card h3{
+      margin:0 0 12px;
+    }
+
+    .sync-box{
+      margin-top:12px;
+      color:#cbd5e1;
+      font-size:13px;
+    }
+
+    .admin-bar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+      background:rgba(59,130,246,.08);
+      border:1px solid rgba(59,130,246,.25);
+      padding:12px 14px;
+      border-radius:14px;
+    }
+
+    .admin-bar .grow{flex:1}
+
+    .hidden{display:none !important}
+
+    .red-text{color:var(--red-text);font-weight:900}
+    .green-text{color:var(--green-text);font-weight:900}
+    .orange-text{color:var(--orange-text);font-weight:900}
+
+    .selected-banner{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:var(--selected-bg);
+      border:1px solid var(--selected-border);
+      font-weight:800;
+    }
+
+    .link-box{
+      margin-top:12px;
+      padding:12px;
+      border-radius:12px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      word-break:break-all;
+    }
+
+    .flag-box{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .flag-item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      background:#0b1220;
+      border:1px solid var(--border);
+      border-radius:12px;
+    }
+
+    .flag-item label{
+      margin:0;
+    }
+
+    .rate-on{color:var(--green-text);font-weight:900}
+    .rate-off{color:var(--red-text);font-weight:900}
+
+    .onoff{
+      display:inline-block;
+      margin-top:4px;
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .onoff.on{color:var(--green-text)}
+    .onoff.off{color:var(--red-text)}
+
+    .danger-note{
+      padding:12px;
+      border-radius:14px;
+      background:rgba(239,68,68,.1);
+      border:1px solid rgba(239,68,68,.28);
+      color:#fecaca;
+      font-size:13px;
+      line-height:1.5;
+      margin-top:12px;
+    }
+
+    @media (max-width:600px){
+      .staff-item{
+        padding:9px 10px;
+      }
+      .staff-actions{
+        max-width:150px;
+      }
+      .staff-actions button{
+        min-width:48px;
+        padding:8px 9px;
+      }
+      th,td{
+        padding:10px 8px;
+        font-size:13px;
+      }
+      .clock{
+        font-size:20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="admin-bar">
+      <div class="grow">
+        <strong>Admin</strong>
+        <span id="adminBadge" class="pill off"></span>
+      </div>
+      <button class="btn dark" id="openAdminBtn" style="width:auto;padding:10px 16px;">Admin Login</button>
+      <button class="btn red" id="logoutAdminBtn" style="width:auto;padding:10px 16px;display:none;">Logout Admin</button>
+    </div>
+
+    <h1>Clock In / Clock Out App</h1>
+    <div class="small">Firebase Firestore Database</div>
+
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h2>จัดการพนักงาน</h2>
+
+          <div id="adminOnlyAddSection" class="hidden">
+            <label for="staffName">ชื่อพนักงาน</label>
+            <input id="staffName" placeholder="เช่น Ben" />
+
+            <div class="row" style="margin-top:12px;">
+              <button class="btn green" id="addStaffBtn">เพิ่มพนักงาน</button>
+              <button class="btn gray" id="refreshBtn">รีเฟรชข้อมูล</button>
+            </div>
+
+            <div class="row" style="margin-top:12px;">
+              <div class="flag-item">
+                <input type="checkbox" id="weekendApplyAll" />
+                <label for="weekendApplyAll">Weekend ทุกคน</label>
+              </div>
+              <div class="flag-item">
+                <input type="checkbox" id="publicHolidayApplyAll" />
+                <label for="publicHolidayApplyAll">PH ทุกคน</label>
+              </div>
+            </div>
+
+            <div class="danger-note">
+              เวอร์ชันนี้ใช้ Admin PIN ในหน้าเว็บ เหมาะสำหรับเริ่มต้น/ใช้งานส่วนตัว ถ้าจะให้พนักงานใช้จริงควรเปลี่ยนเป็น Firebase Auth + Rules
+            </div>
+          </div>
+
+          <div id="normalRefreshSection">
+            <button class="btn gray" id="refreshBtn2">รีเฟรชข้อมูล</button>
+          </div>
+
+          <div class="sync-box" id="syncInfo">สถานะ: กำลังโหลด...</div>
+          <div class="staff-list" id="staffList"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>ลงเวลา</h2>
+          <div class="clock" id="liveClock">--:--:--</div>
+
+          <label for="staffSelect">เลือกพนักงาน</label>
+          <select id="staffSelect"></select>
+
+          <div class="selected-banner" id="selectedStaffBanner">กำลังเลือก: -</div>
+
+          <div class="toolbar">
+            <button class="btn blue" id="clockInBtn">Clock in</button>
+            <button class="btn red" id="clockOutBtn">Clock out</button>
+            <button class="btn warn" id="startBreakBtn">Start Break</button>
+            <button class="btn purple" id="resumeBreakBtn">Resume Work</button>
+          </div>
+
+          <div class="toolbar hidden" id="exportToolbar">
+            <button class="btn green" id="exportCsvBtn">Export CSV</button>
+          </div>
+
+          <div class="status" id="statusBox">
+            <div class="big">ยังไม่มีพนักงานถูกเลือก</div>
+            <div class="small">เพิ่มพนักงานก่อน แล้วเลือกพนักงานเพื่อเริ่มลงเวลา</div>
+          </div>
+
+          <div class="summary-box" id="latestSummary" style="display:none;">
+            <h3 style="margin:0 0 10px;color:#bbf7d0;font-size:17px;">สรุปหลัง Clock out</h3>
+            <div class="summary-grid">
+              <div class="metric">
+                <div class="label">พนักงาน</div>
+                <div class="value" id="sumName">-</div>
+              </div>
+              <div class="metric">
+                <div class="label">เวลาทั้งหมด</div>
+                <div class="value" id="sumGross">-</div>
+              </div>
+              <div class="metric">
+                <div class="label">พักรวม</div>
+                <div class="value" id="sumBreak">-</div>
+              </div>
+              <div class="metric">
+                <div class="label">สุทธิ</div>
+                <div class="value" id="sumNet">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card hidden" id="adminSummaryCard">
+          <h2>สรุปเงิน</h2>
+
+          <div class="row">
+            <div>
+              <label for="dailySummaryDate">สรุปรายวัน</label>
+              <input type="date" id="dailySummaryDate" />
+            </div>
+            <div style="display:flex;align-items:flex-end;">
+              <button class="btn cyan" id="calcDailyBtn">คำนวณรายวัน</button>
+            </div>
+          </div>
+
+          <div class="summary-grid" style="margin-top:12px;">
+            <div class="metric">
+              <div class="label">ชั่วโมงรวมทั้งวัน</div>
+              <div class="value" id="dailyHoursValue">0.00</div>
+            </div>
+            <div class="metric">
+              <div class="label">เงินรวมทั้งวัน</div>
+              <div class="value" id="dailyPayValue">0.00</div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:16px;">
+            <div>
+              <label for="weeklyFrom">สรุปช่วงวันที่เริ่ม</label>
+              <input type="date" id="weeklyFrom" />
+            </div>
+            <div>
+              <label for="weeklyTo">ถึงวันที่</label>
+              <input type="date" id="weeklyTo" />
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <button class="btn purple" id="calcWeeklyBtn">คำนวณรายสัปดาห์</button>
+          </div>
+
+          <div class="summary-grid" style="margin-top:12px;">
+            <div class="metric">
+              <div class="label">ชั่วโมงรวมทั้งช่วง</div>
+              <div class="value" id="weeklyHoursValue">0.00</div>
+            </div>
+            <div class="metric">
+              <div class="label">เงินรวมทั้งช่วง</div>
+              <div class="value" id="weeklyPayValue">0.00</div>
+            </div>
+          </div>
+
+          <div style="overflow:auto;margin-top:12px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>สัปดาห์</th>
+                  <th>จำนวนวัน</th>
+                  <th>รวมเวลา</th>
+                  <th>พักรวม</th>
+                  <th>สุทธิรวม</th>
+                  <th>เงินรวม</th>
+                </tr>
+              </thead>
+              <tbody id="weeklyTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card hidden" id="historyCard">
+          <h2>ประวัติการทำงาน</h2>
+          <div class="small">แสดง 10 รายการล่าสุด — ถ้าพักเกิน 30 นาทีจะเป็นสีส้ม / ถ้าทำงานเกิน 9 ชม. จะเป็นสีแดง</div>
+          <div style="overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>วันที่</th>
+                  <th>Clock in</th>
+                  <th>Clock out</th>
+                  <th>พักรวม</th>
+                  <th>สุทธิ</th>
+                  <th>Pay Rate</th>
+                  <th>ตัวคูณ</th>
+                  <th>เงินที่ต้องจ่าย</th>
+                  <th>จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="historyTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Login Modal -->
+  <div class="modal" id="adminModal">
+    <div class="modal-card">
+      <h3>Admin Login</h3>
+
+      <label for="adminId">ID</label>
+      <input id="adminId" placeholder="กรอก ID" />
+
+      <label for="adminPassword">Password</label>
+      <input id="adminPassword" type="password" placeholder="กรอก Password" />
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn blue" id="loginAdminBtn">เข้าสู่ระบบ</button>
+        <button class="btn gray" id="closeAdminBtn">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rename Modal -->
+  <div class="modal" id="renameModal">
+    <div class="modal-card">
+      <h3>เปลี่ยนชื่อพนักงาน</h3>
+
+      <label for="renameStaffInput">ชื่อใหม่</label>
+      <input id="renameStaffInput" placeholder="กรอกชื่อใหม่" />
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn green" id="saveRenameBtn">บันทึกชื่อใหม่</button>
+        <button class="btn gray" id="cancelRenameBtn">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Staff Rate Modal -->
+  <div class="modal" id="staffRateModal">
+    <div class="modal-card">
+      <h3>ตั้งค่าเรทของพนักงาน</h3>
+
+      <label for="staffRateInput">Base Pay Rate</label>
+      <input id="staffRateInput" type="number" min="0" step="0.01" placeholder="เช่น 25" />
+
+      <div class="flag-box">
+        <div class="flag-item">
+          <input type="checkbox" id="staffWeekendEnabled" />
+          <label for="staffWeekendEnabled">ใช้ Weekend Rate 1.5x</label>
+        </div>
+        <div class="flag-item">
+          <input type="checkbox" id="staffPublicHolidayEnabled" />
+          <label for="staffPublicHolidayEnabled">ใช้ Public Holiday Rate 1.5x</label>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn green" id="saveStaffRateBtn">บันทึก</button>
+        <button class="btn gray" id="cancelStaffRateBtn">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Session Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-card">
+      <h3>แก้ไขเวลาทำงาน</h3>
+
+      <label for="editClockIn">Clock in</label>
+      <input id="editClockIn" type="datetime-local" />
+
+      <label for="editClockOut">Clock out</label>
+      <input id="editClockOut" type="datetime-local" />
+
+      <label for="editBreakMinutes">เวลาพักรวม นาที</label>
+      <input id="editBreakMinutes" type="number" min="0" placeholder="เช่น 30" />
+
+      <label for="editPayRate">Base Pay Rate</label>
+      <input id="editPayRate" type="number" min="0" step="0.01" placeholder="เช่น 25" />
+
+      <label for="editManualPublicHoliday">Public Holiday Override</label>
+      <select id="editManualPublicHoliday">
+        <option value="">Auto</option>
+        <option value="force_on">บังคับให้เป็น Public Holiday</option>
+        <option value="force_off">บังคับไม่ให้เป็น Public Holiday</option>
+      </select>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn green" id="saveEditBtn">บันทึก</button>
+        <button class="btn gray" id="cancelEditBtn">ยกเลิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div class="modal" id="exportModal">
+    <div class="modal-card">
+      <h3>Export CSV</h3>
+
+      <div class="row">
+        <div>
+          <label for="exportFrom">วันที่เริ่มต้น</label>
+          <input type="date" id="exportFrom" />
+        </div>
+        <div>
+          <label for="exportTo">วันที่สิ้นสุด</label>
+          <input type="date" id="exportTo" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:16px;">
+        <button class="btn green" id="generateExportBtn">Download CSV</button>
+        <button class="btn gray" id="closeExportBtn">ปิด</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      getDocs,
+      getDoc,
+      setDoc,
+      updateDoc,
+      deleteDoc,
+      query,
+      orderBy,
+      serverTimestamp,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAb5Pw7RzIADK9tKL7Pon2MtEK6GcAz11g",
+      authDomain: "clock-in-app-493a6.firebaseapp.com",
+      projectId: "clock-in-app-493a6",
+      storageBucket: "clock-in-app-493a6.firebasestorage.app",
+      messagingSenderId: "595456747501",
+      appId: "1:595456747501:web:de4e1df49de6fe484769e4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ADMIN_ID = "admin";
+    const ADMIN_PASSWORD = "2537";
+
+    const WEEKEND_MULTIPLIER = 1.5;
+    const PUBLIC_HOLIDAY_MULTIPLIER = 1.5;
+
+    const els = {
+      staffName: document.getElementById("staffName"),
+      addStaffBtn: document.getElementById("addStaffBtn"),
+      refreshBtn: document.getElementById("refreshBtn"),
+      refreshBtn2: document.getElementById("refreshBtn2"),
+      staffList: document.getElementById("staffList"),
+      staffSelect: document.getElementById("staffSelect"),
+      selectedStaffBanner: document.getElementById("selectedStaffBanner"),
+      liveClock: document.getElementById("liveClock"),
+      statusBox: document.getElementById("statusBox"),
+      historyCard: document.getElementById("historyCard"),
+      historyTable: document.getElementById("historyTable"),
+      adminSummaryCard: document.getElementById("adminSummaryCard"),
+      dailySummaryDate: document.getElementById("dailySummaryDate"),
+      calcDailyBtn: document.getElementById("calcDailyBtn"),
+      dailyHoursValue: document.getElementById("dailyHoursValue"),
+      dailyPayValue: document.getElementById("dailyPayValue"),
+      weeklyFrom: document.getElementById("weeklyFrom"),
+      weeklyTo: document.getElementById("weeklyTo"),
+      calcWeeklyBtn: document.getElementById("calcWeeklyBtn"),
+      weeklyHoursValue: document.getElementById("weeklyHoursValue"),
+      weeklyPayValue: document.getElementById("weeklyPayValue"),
+      weeklyTable: document.getElementById("weeklyTable"),
+
+      weekendApplyAll: document.getElementById("weekendApplyAll"),
+      publicHolidayApplyAll: document.getElementById("publicHolidayApplyAll"),
+
+      clockInBtn: document.getElementById("clockInBtn"),
+      clockOutBtn: document.getElementById("clockOutBtn"),
+      startBreakBtn: document.getElementById("startBreakBtn"),
+      resumeBreakBtn: document.getElementById("resumeBreakBtn"),
+      exportToolbar: document.getElementById("exportToolbar"),
+      exportCsvBtn: document.getElementById("exportCsvBtn"),
+      adminOnlyAddSection: document.getElementById("adminOnlyAddSection"),
+      normalRefreshSection: document.getElementById("normalRefreshSection"),
+      latestSummary: document.getElementById("latestSummary"),
+      sumName: document.getElementById("sumName"),
+      sumGross: document.getElementById("sumGross"),
+      sumBreak: document.getElementById("sumBreak"),
+      sumNet: document.getElementById("sumNet"),
+
+      adminModal: document.getElementById("adminModal"),
+      openAdminBtn: document.getElementById("openAdminBtn"),
+      closeAdminBtn: document.getElementById("closeAdminBtn"),
+      loginAdminBtn: document.getElementById("loginAdminBtn"),
+      logoutAdminBtn: document.getElementById("logoutAdminBtn"),
+      adminId: document.getElementById("adminId"),
+      adminPassword: document.getElementById("adminPassword"),
+      adminBadge: document.getElementById("adminBadge"),
+
+      renameModal: document.getElementById("renameModal"),
+      renameStaffInput: document.getElementById("renameStaffInput"),
+      saveRenameBtn: document.getElementById("saveRenameBtn"),
+      cancelRenameBtn: document.getElementById("cancelRenameBtn"),
+
+      staffRateModal: document.getElementById("staffRateModal"),
+      staffRateInput: document.getElementById("staffRateInput"),
+      staffWeekendEnabled: document.getElementById("staffWeekendEnabled"),
+      staffPublicHolidayEnabled: document.getElementById("staffPublicHolidayEnabled"),
+      saveStaffRateBtn: document.getElementById("saveStaffRateBtn"),
+      cancelStaffRateBtn: document.getElementById("cancelStaffRateBtn"),
+
+      editModal: document.getElementById("editModal"),
+      editClockIn: document.getElementById("editClockIn"),
+      editClockOut: document.getElementById("editClockOut"),
+      editBreakMinutes: document.getElementById("editBreakMinutes"),
+      editPayRate: document.getElementById("editPayRate"),
+      editManualPublicHoliday: document.getElementById("editManualPublicHoliday"),
+      saveEditBtn: document.getElementById("saveEditBtn"),
+      cancelEditBtn: document.getElementById("cancelEditBtn"),
+
+      exportModal: document.getElementById("exportModal"),
+      exportFrom: document.getElementById("exportFrom"),
+      exportTo: document.getElementById("exportTo"),
+      generateExportBtn: document.getElementById("generateExportBtn"),
+      closeExportBtn: document.getElementById("closeExportBtn"),
+
+      syncInfo: document.getElementById("syncInfo"),
+    };
+
+    let state = {
+      staff: [],
+      sessions: [],
+      settings: {
+        weekend_apply_all: false,
+        public_holiday_apply_all: false
+      },
+      selectedStaffId: null,
+      latestSummary: null
+    };
+
+    let isAdmin = false;
+    let editingSessionId = null;
+    let renamingStaffId = null;
+    let editingStaffRateId = null;
+    let isSavingGlobal = false;
+
+    function setSyncInfo(text){
+      els.syncInfo.textContent = "สถานะ: " + text;
+    }
+
+    function money(n){
+      return Number(n || 0).toFixed(2);
+    }
+
+    function boolFromValue(v){
+      return v === true || String(v).toUpperCase() === "TRUE";
+    }
+
+    function minutesToMs(minutes){
+      return Number(minutes || 0) * 60 * 1000;
+    }
+
+    function toDateSafe(value){
+      if(!value) return null;
+      if(value instanceof Date) return value;
+      if(value && typeof value.toDate === "function") return value.toDate();
+      return new Date(value);
+    }
+
+    function toIso(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return "";
+      return d.toISOString();
+    }
+
+    function dateToTimestamp(dateValue){
+      const d = new Date(dateValue);
+      return Timestamp.fromDate(d);
+    }
+
+    function nowTimestamp(){
+      return Timestamp.fromDate(new Date());
+    }
+
+    function formatDateTime(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return "-";
+      return d.toLocaleString("en-AU", {
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit"
+      });
+    }
+
+    function formatDateOnly(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return "-";
+      return d.toLocaleDateString("en-AU", {
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit"
+      });
+    }
+
+    function formatTimeOnly(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return "-";
+      return d.toLocaleTimeString("en-AU", {
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit"
+      });
+    }
+
+    function formatDuration(ms){
+      if(ms == null || isNaN(ms) || ms < 0) return "-";
+      const totalSec = Math.floor(ms / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    }
+
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function getSelectedStaff(){
+      return state.staff.find(s => String(s.id) === String(state.selectedStaffId)) || null;
+    }
+
+    function getSessionsForStaff(staffId){
+      return state.sessions.filter(s => String(s.staff_id) === String(staffId));
+    }
+
+    function findOpenSession(staffId){
+      return state.sessions.find(s =>
+        String(s.staff_id) === String(staffId) &&
+        !s.clock_out
+      ) || null;
+    }
+
+    function isWorking(staff){
+      if(!staff) return false;
+      return !!findOpenSession(staff.id);
+    }
+
+    function isOnBreak(staff){
+      const open = staff ? findOpenSession(staff.id) : null;
+      return !!(open && open.break_started_at);
+    }
+
+    function getStatusLabel(staff){
+      if(!staff) return '<span class="pill off">No selection</span>';
+      if(isOnBreak(staff)) return '<span class="pill break">On Break</span>';
+      if(isWorking(staff)) return '<span class="pill working">Working</span>';
+      return '<span class="pill off">Off duty</span>';
+    }
+
+    function calcSessionGrossMs(session){
+      if(!session || !session.clock_in || !session.clock_out) return 0;
+      const inDate = toDateSafe(session.clock_in);
+      const outDate = toDateSafe(session.clock_out);
+      if(!inDate || !outDate) return 0;
+      return Math.max(0, outDate - inDate);
+    }
+
+    function calcSessionBreakMs(session){
+      const savedMinutes = Number(session.break_minutes || 0);
+      const savedMs = minutesToMs(savedMinutes);
+
+      if(session.break_started_at && !session.clock_out){
+        const started = toDateSafe(session.break_started_at);
+        if(started && !isNaN(started)){
+          const liveMs = Math.max(0, new Date() - started);
+          return savedMs + liveMs;
+        }
+      }
+
+      return savedMs;
+    }
+
+    function calcSessionNetMs(session){
+      return Math.max(0, calcSessionGrossMs(session) - minutesToMs(Number(session.break_minutes || 0)));
+    }
+
+    function hoursFromSession(session){
+      return calcSessionNetMs(session) / 3600000;
+    }
+
+    function getSydneyDateKey(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return "";
+      const y = d.toLocaleString("en-CA", { timeZone:"Australia/Sydney", year:"numeric" });
+      const m = d.toLocaleString("en-CA", { timeZone:"Australia/Sydney", month:"2-digit" });
+      const day = d.toLocaleString("en-CA", { timeZone:"Australia/Sydney", day:"2-digit" });
+      return `${y}-${m}-${day}`;
+    }
+
+    function isWeekendSydney(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return false;
+      const day = d.toLocaleString("en-US", {
+        timeZone:"Australia/Sydney",
+        weekday:"short"
+      });
+      return day === "Sat" || day === "Sun";
+    }
+
+    function getNSWPublicHolidaySet(){
+      return {
+        "2025-01-01": true,
+        "2025-01-27": true,
+        "2025-04-18": true,
+        "2025-04-19": true,
+        "2025-04-20": true,
+        "2025-04-21": true,
+        "2025-04-25": true,
+        "2025-06-09": true,
+        "2025-10-06": true,
+        "2025-12-25": true,
+        "2025-12-26": true,
+
+        "2026-01-01": true,
+        "2026-01-26": true,
+        "2026-04-03": true,
+        "2026-04-04": true,
+        "2026-04-05": true,
+        "2026-04-06": true,
+        "2026-04-25": true,
+        "2026-04-27": true,
+        "2026-06-08": true,
+        "2026-10-05": true,
+        "2026-12-25": true,
+        "2026-12-26": true,
+        "2026-12-28": true,
+
+        "2027-01-01": true,
+        "2027-01-26": true,
+        "2027-03-26": true,
+        "2027-03-27": true,
+        "2027-03-28": true,
+        "2027-03-29": true,
+        "2027-04-25": true,
+        "2027-04-26": true,
+        "2027-06-14": true,
+        "2027-10-04": true,
+        "2027-12-25": true,
+        "2027-12-26": true,
+        "2027-12-27": true,
+        "2027-12-28": true
+      };
+    }
+
+    function calculateSessionPay(session){
+      const staff = state.staff.find(s => String(s.id) === String(session.staff_id)) || {};
+      const settings = state.settings || {};
+
+      const baseRate = Number(session.pay_rate || staff.pay_rate || 0);
+      const hours = hoursFromSession(session);
+
+      const weekendApplyAll = boolFromValue(settings.weekend_apply_all);
+      const publicApplyAll = boolFromValue(settings.public_holiday_apply_all);
+
+      const weekendEnabled = weekendApplyAll || boolFromValue(staff.weekend_enabled);
+      const publicEnabled = publicApplyAll || boolFromValue(staff.public_holiday_enabled);
+
+      const isWeekend = isWeekendSydney(session.clock_in);
+      const holidaySet = getNSWPublicHolidaySet();
+      const dateKey = getSydneyDateKey(session.clock_in);
+      const isPublicHolidayAuto = !!holidaySet[dateKey];
+
+      let usePublicHoliday = false;
+
+      if(String(session.manual_public_holiday) === "force_on"){
+        usePublicHoliday = true;
+      }else if(String(session.manual_public_holiday) === "force_off"){
+        usePublicHoliday = false;
+      }else{
+        usePublicHoliday = publicEnabled && isPublicHolidayAuto;
+      }
+
+      const useWeekend = weekendEnabled && isWeekend;
+
+      let multiplier = 1;
+      if(useWeekend) multiplier = Math.max(multiplier, WEEKEND_MULTIPLIER);
+      if(usePublicHoliday) multiplier = Math.max(multiplier, PUBLIC_HOLIDAY_MULTIPLIER);
+
+      return {
+        baseRate,
+        hours,
+        multiplier,
+        pay: hours * baseRate * multiplier,
+        notBaseRate: multiplier > 1,
+        isWeekend: useWeekend,
+        isPublicHoliday: usePublicHoliday,
+        isPublicHolidayAuto
+      };
+    }
+
+    function isSameLocalDate(valueA, dateB){
+      const a = toDateSafe(valueA);
+      const b = dateB instanceof Date ? dateB : new Date(dateB);
+      if(!a || !b) return false;
+      return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+    }
+
+    function calcTodayNetMs(staff){
+      if(!staff) return 0;
+
+      const now = new Date();
+      let total = 0;
+
+      const sessions = getSessionsForStaff(staff.id);
+
+      for(const s of sessions){
+        if(s.clock_in && s.clock_out && isSameLocalDate(s.clock_in, now)){
+          total += calcSessionNetMs(s);
+        }
+      }
+
+      const open = findOpenSession(staff.id);
+      if(open){
+        const inDate = toDateSafe(open.clock_in);
+        const gross = Math.max(0, new Date() - inDate);
+        const breakMs = calcSessionBreakMs(open);
+        total += Math.max(0, gross - breakMs);
+      }
+
+      return total;
+    }
+
+    function getDateInputStart(dateStr){
+      return new Date(`${dateStr}T00:00:00`);
+    }
+
+    function getDateInputEnd(dateStr){
+      return new Date(`${dateStr}T23:59:59`);
+    }
+
+    function filterSessionsByDateRange(sessions, fromStr, toStr){
+      if(!fromStr || !toStr) return sessions;
+
+      const from = getDateInputStart(fromStr);
+      const to = getDateInputEnd(toStr);
+
+      return sessions.filter(s => {
+        const d = toDateSafe(s.clock_in);
+        return d >= from && d <= to;
+      });
+    }
+
+    async function ensureConfig(){
+      const ref = doc(db, "config", "global");
+      const snap = await getDoc(ref);
+
+      if(!snap.exists()){
+        await setDoc(ref, {
+          weekend_apply_all: false,
+          public_holiday_apply_all: false,
+          updated_at: serverTimestamp()
+        });
+      }
+    }
+
+    async function loadAllData(){
+      setSyncInfo("กำลังโหลด...");
+
+      try{
+        await ensureConfig();
+
+        const configSnap = await getDoc(doc(db, "config", "global"));
+        state.settings = configSnap.exists()
+          ? configSnap.data()
+          : {
+              weekend_apply_all:false,
+              public_holiday_apply_all:false
+            };
+
+        const staffQ = query(collection(db, "staff"), orderBy("name"));
+        const staffSnap = await getDocs(staffQ);
+        state.staff = staffSnap.docs.map(d => ({
+          id:d.id,
+          ...d.data()
+        }));
+
+        const sessionsQ = query(collection(db, "sessions"), orderBy("clock_in", "desc"));
+        const sessionsSnap = await getDocs(sessionsQ);
+        state.sessions = sessionsSnap.docs.map(d => ({
+          id:d.id,
+          ...d.data()
+        }));
+
+        if(!state.selectedStaffId && state.staff.length){
+          state.selectedStaffId = state.staff[0].id;
+        }
+
+        if(state.selectedStaffId && !state.staff.some(s => String(s.id) === String(state.selectedStaffId))){
+          state.selectedStaffId = state.staff[0]?.id || null;
+        }
+
+        setDefaultDateFilters();
+        syncSettingsToUI();
+        setSyncInfo("เชื่อมต่อ Firebase แล้ว");
+        renderAll();
+
+      }catch(err){
+        console.error(err);
+        setSyncInfo("เชื่อมต่อไม่สำเร็จ");
+        alert("โหลดข้อมูลไม่สำเร็จ: " + (err.message || err));
+      }
+    }
+
+    function setDefaultDateFilters(){
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+
+      if(!els.exportFrom.value) els.exportFrom.value = todayStr;
+      if(!els.exportTo.value) els.exportTo.value = todayStr;
+      if(!els.dailySummaryDate.value) els.dailySummaryDate.value = todayStr;
+      if(!els.weeklyFrom.value) els.weeklyFrom.value = todayStr;
+      if(!els.weeklyTo.value) els.weeklyTo.value = todayStr;
+    }
+
+    function syncSettingsToUI(){
+      els.weekendApplyAll.checked = boolFromValue(state.settings.weekend_apply_all);
+      els.publicHolidayApplyAll.checked = boolFromValue(state.settings.public_holiday_apply_all);
+    }
+
+    function updateAdminUI(){
+      if(isAdmin){
+        els.adminBadge.textContent = "Admin";
+        els.adminBadge.className = "pill admin";
+        els.logoutAdminBtn.style.display = "inline-block";
+        els.openAdminBtn.style.display = "none";
+        els.exportToolbar.classList.remove("hidden");
+        els.adminOnlyAddSection.classList.remove("hidden");
+        els.normalRefreshSection.classList.add("hidden");
+        els.historyCard.classList.remove("hidden");
+        els.adminSummaryCard.classList.remove("hidden");
+      }else{
+        els.adminBadge.textContent = "";
+        els.adminBadge.className = "pill off";
+        els.logoutAdminBtn.style.display = "none";
+        els.openAdminBtn.style.display = "inline-block";
+        els.exportToolbar.classList.add("hidden");
+        els.adminOnlyAddSection.classList.add("hidden");
+        els.normalRefreshSection.classList.remove("hidden");
+        els.historyCard.classList.add("hidden");
+        els.adminSummaryCard.classList.add("hidden");
+      }
+    }
+
+    function renderSelectedBanner(){
+      const staff = getSelectedStaff();
+      els.selectedStaffBanner.textContent = `กำลังเลือก: ${staff ? staff.name : "-"}`;
+    }
+
+    function renderStaffList(){
+      els.staffList.innerHTML = "";
+
+      if(state.staff.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "small";
+        empty.textContent = "ยังไม่มีพนักงาน";
+        els.staffList.appendChild(empty);
+        return;
+      }
+
+      state.staff.forEach(staff => {
+        const weekendOn = boolFromValue(state.settings.weekend_apply_all) || boolFromValue(staff.weekend_enabled);
+        const phOn = boolFromValue(state.settings.public_holiday_apply_all) || boolFromValue(staff.public_holiday_enabled);
+
+        const div = document.createElement("div");
+        div.className = "staff-item" + (String(staff.id) === String(state.selectedStaffId) ? " selected" : "");
+
+        const left = document.createElement("div");
+        left.style.minWidth = "0";
+
+        left.innerHTML = `
+          <div class="staff-name">${escapeHtml(staff.name)}</div>
+          <div class="staff-meta">
+            ${getStatusLabel(staff)}
+            ${isAdmin ? `
+              <br>Base: ${money(staff.pay_rate)}
+              <br><span class="${weekendOn ? "rate-on" : "rate-off"}">Weekend Rate: ${weekendOn ? "ON" : "OFF"}</span>
+              <br><span class="${phOn ? "rate-on" : "rate-off"}">Public Holiday: ${phOn ? "ON" : "OFF"}</span>
+            ` : ""}
+          </div>
+        `;
+
+        const actions = document.createElement("div");
+        actions.className = "staff-actions";
+
+        const selectBtn = document.createElement("button");
+        selectBtn.className = "btn blue";
+        selectBtn.textContent = "เลือก";
+        selectBtn.onclick = () => {
+          state.selectedStaffId = staff.id;
+          renderAll();
+        };
+        actions.appendChild(selectBtn);
+
+        if(isAdmin){
+          const renameBtn = document.createElement("button");
+          renameBtn.className = "btn warn";
+          renameBtn.textContent = "ชื่อ";
+          renameBtn.onclick = () => openRenameModal(staff.id, staff.name);
+          actions.appendChild(renameBtn);
+
+          const rateBtn = document.createElement("button");
+          rateBtn.className = "btn cyan";
+          rateBtn.textContent = "เรท";
+          rateBtn.onclick = () => openStaffRateModal(staff.id, staff);
+          actions.appendChild(rateBtn);
+        }
+
+        div.appendChild(left);
+        div.appendChild(actions);
+        els.staffList.appendChild(div);
+      });
+    }
+
+    function renderStaffSelect(){
+      els.staffSelect.innerHTML = "";
+
+      if(state.staff.length === 0){
+        const opt = document.createElement("option");
+        opt.textContent = "ยังไม่มีพนักงาน";
+        opt.value = "";
+        els.staffSelect.appendChild(opt);
+        return;
+      }
+
+      state.staff.forEach(staff => {
+        const opt = document.createElement("option");
+        opt.value = staff.id;
+        opt.textContent = staff.name;
+        if(String(staff.id) === String(state.selectedStaffId)) opt.selected = true;
+        els.staffSelect.appendChild(opt);
+      });
+    }
+
+    function renderStatus(){
+      const staff = getSelectedStaff();
+
+      if(!staff){
+        els.statusBox.innerHTML = `
+          <div class="big">ยังไม่มีพนักงานถูกเลือก</div>
+          <div class="small">เพิ่มพนักงานก่อน แล้วเลือกพนักงานเพื่อเริ่มลงเวลา</div>
+        `;
+        return;
+      }
+
+      let workingFor = "00:00:00";
+      let breakFor = "00:00:00";
+      const open = findOpenSession(staff.id);
+
+      if(open){
+        const inDate = toDateSafe(open.clock_in);
+        const gross = Math.max(0, new Date() - inDate);
+        const breakMs = calcSessionBreakMs(open);
+        workingFor = formatDuration(Math.max(0, gross - breakMs));
+        breakFor = formatDuration(breakMs);
+      }
+
+      els.statusBox.innerHTML = `
+        <div class="big">${escapeHtml(staff.name)} ${getStatusLabel(staff)}</div>
+        <div class="small" style="margin-top:8px;">Clock in ล่าสุด: ${open ? formatDateTime(open.clock_in) : "-"}</div>
+        <div class="small">เวลาพักสะสมรอบนี้: ${breakFor}</div>
+        <div class="small">เวลาทำงานสุทธิรอบนี้: ${workingFor}</div>
+        <div class="small">รวมสุทธิวันนี้: ${formatDuration(calcTodayNetMs(staff))}</div>
+      `;
+    }
+
+    function renderHistory(){
+      const staff = getSelectedStaff();
+      els.historyTable.innerHTML = "";
+
+      if(!staff){
+        els.historyTable.innerHTML = `<tr><td colspan="9" class="small">ยังไม่มีข้อมูล</td></tr>`;
+        return;
+      }
+
+      const sessions = getSessionsForStaff(staff.id)
+        .filter(s => !!s.clock_out)
+        .sort((a,b) => toDateSafe(b.clock_in) - toDateSafe(a.clock_in))
+        .slice(0,10);
+
+      if(sessions.length === 0){
+        els.historyTable.innerHTML = `<tr><td colspan="9" class="small">ยังไม่มีประวัติการทำงาน</td></tr>`;
+        return;
+      }
+
+      sessions.forEach(s => {
+        const calc = calculateSessionPay(s);
+        const overNine = calc.hours > 9;
+        const breakOver30 = Number(s.break_minutes || 0) > 30;
+
+        const netClass = overNine ? "red-text" : "";
+        const breakClass = breakOver30 ? "orange-text" : "";
+        const multiplierClass = calc.notBaseRate ? "green-text" : "";
+        const payClass = calc.notBaseRate ? "green-text" : "";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatDateOnly(s.clock_in)}</td>
+          <td>${formatTimeOnly(s.clock_in)}</td>
+          <td>${formatTimeOnly(s.clock_out)}</td>
+          <td class="${breakClass}">${formatDuration(minutesToMs(Number(s.break_minutes || 0)))}</td>
+          <td class="${netClass}">${formatDuration(calcSessionNetMs(s))}</td>
+          <td>${money(s.pay_rate)}</td>
+          <td class="${multiplierClass}">${calc.multiplier.toFixed(2)}x</td>
+          <td class="${payClass}">${money(calc.pay)}</td>
+          <td>
+            <div class="action-col">
+              <button class="mini-btn edit" data-edit="${s.id}">Edit</button>
+              <button class="mini-btn delete" data-delete="${s.id}">Delete</button>
+            </div>
+          </td>
+        `;
+
+        els.historyTable.appendChild(tr);
+      });
+
+      els.historyTable.querySelectorAll("[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => openEditModal(btn.dataset.edit));
+      });
+
+      els.historyTable.querySelectorAll("[data-delete]").forEach(btn => {
+        btn.addEventListener("click", () => deleteSessionRow(btn.dataset.delete));
+      });
+    }
+
+    function renderDailySummary(){
+      const staff = getSelectedStaff();
+
+      if(!staff){
+        els.dailyHoursValue.textContent = "0.00";
+        els.dailyPayValue.textContent = "0.00";
+        return;
+      }
+
+      const dateStr = els.dailySummaryDate.value;
+
+      if(!dateStr){
+        els.dailyHoursValue.textContent = "0.00";
+        els.dailyPayValue.textContent = "0.00";
+        return;
+      }
+
+      const start = getDateInputStart(dateStr);
+      const end = getDateInputEnd(dateStr);
+
+      const sessions = getSessionsForStaff(staff.id)
+        .filter(s => !!s.clock_out)
+        .filter(s => {
+          const d = toDateSafe(s.clock_in);
+          return d >= start && d <= end;
+        });
+
+      const totalHours = sessions.reduce((sum,s) => sum + hoursFromSession(s), 0);
+      const totalPay = sessions.reduce((sum,s) => sum + calculateSessionPay(s).pay, 0);
+
+      els.dailyHoursValue.textContent = totalHours.toFixed(2);
+      els.dailyPayValue.textContent = money(totalPay);
+    }
+
+    function getWeekStartMonday(dateInput){
+      const d = toDateSafe(dateInput);
+      const date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const day = date.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      date.setDate(date.getDate() + diff);
+      date.setHours(0,0,0,0);
+      return date;
+    }
+
+    function formatWeekRange(start){
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return `${start.toLocaleDateString("en-AU")} - ${end.toLocaleDateString("en-AU")}`;
+    }
+
+    function buildWeeklySummary(staff, fromStr, toStr){
+      const map = new Map();
+
+      let sessions = getSessionsForStaff(staff.id)
+        .filter(s => !!s.clock_out);
+
+      sessions = filterSessionsByDateRange(sessions, fromStr, toStr);
+
+      for(const s of sessions){
+        const weekStart = getWeekStartMonday(s.clock_in);
+        const key = weekStart.toISOString();
+
+        if(!map.has(key)){
+          map.set(key, {
+            weekStart,
+            workDates:new Set(),
+            grossMs:0,
+            breakMs:0,
+            netMs:0,
+            totalPay:0
+          });
+        }
+
+        const row = map.get(key);
+        const workDateKey = toDateSafe(s.clock_in).toLocaleDateString("en-CA");
+
+        row.workDates.add(workDateKey);
+        row.grossMs += calcSessionGrossMs(s);
+        row.breakMs += minutesToMs(Number(s.break_minutes || 0));
+        row.netMs += calcSessionNetMs(s);
+        row.totalPay += calculateSessionPay(s).pay;
+      }
+
+      return [...map.values()]
+        .map(w => ({
+          weekStart:w.weekStart,
+          workDays:w.workDates.size,
+          grossMs:w.grossMs,
+          breakMs:w.breakMs,
+          netMs:w.netMs,
+          totalPay:w.totalPay
+        }))
+        .sort((a,b) => b.weekStart - a.weekStart);
+    }
+
+    function renderWeeklySummary(){
+      const staff = getSelectedStaff();
+      els.weeklyTable.innerHTML = "";
+
+      if(!staff){
+        els.weeklyHoursValue.textContent = "0.00";
+        els.weeklyPayValue.textContent = "0.00";
+        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">ยังไม่มีข้อมูล</td></tr>`;
+        return;
+      }
+
+      const weeks = buildWeeklySummary(staff, els.weeklyFrom.value, els.weeklyTo.value);
+      const totalHours = weeks.reduce((sum,w) => sum + (w.netMs / 3600000), 0);
+      const totalPay = weeks.reduce((sum,w) => sum + w.totalPay, 0);
+
+      els.weeklyHoursValue.textContent = totalHours.toFixed(2);
+      els.weeklyPayValue.textContent = money(totalPay);
+
+      if(weeks.length === 0){
+        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">ยังไม่มีสรุปรายสัปดาห์</td></tr>`;
+        return;
+      }
+
+      weeks.forEach(w => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${formatWeekRange(w.weekStart)}</td>
+          <td>${w.workDays}</td>
+          <td>${formatDuration(w.grossMs)}</td>
+          <td>${formatDuration(w.breakMs)}</td>
+          <td>${formatDuration(w.netMs)}</td>
+          <td>${money(w.totalPay)}</td>
+        `;
+        els.weeklyTable.appendChild(tr);
+      });
+    }
+
+    function renderLatestSummary(){
+      const data = state.latestSummary;
+
+      if(!data){
+        els.latestSummary.style.display = "none";
+        return;
+      }
+
+      els.latestSummary.style.display = "block";
+      els.sumName.textContent = data.name;
+      els.sumGross.textContent = data.gross;
+      els.sumBreak.textContent = data.break;
+      els.sumNet.textContent = data.net;
+    }
+
+    function renderAll(){
+      updateAdminUI();
+      renderStaffSelect();
+      renderStaffList();
+      renderSelectedBanner();
+      renderStatus();
+
+      if(isAdmin){
+        renderHistory();
+        renderDailySummary();
+        renderWeeklySummary();
+      }
+
+      renderLatestSummary();
+    }
+
+    async function saveGlobalSettings(){
+      if(!requireAdmin() || isSavingGlobal) return;
+
+      isSavingGlobal = true;
+
+      try{
+        setSyncInfo("กำลังบันทึก global...");
+
+        await setDoc(doc(db, "config", "global"), {
+          weekend_apply_all: els.weekendApplyAll.checked,
+          public_holiday_apply_all: els.publicHolidayApplyAll.checked,
+          updated_at: serverTimestamp()
+        }, { merge:true });
+
+        state.settings.weekend_apply_all = els.weekendApplyAll.checked;
+        state.settings.public_holiday_apply_all = els.publicHolidayApplyAll.checked;
+
+        renderAll();
+        setSyncInfo("บันทึก global แล้ว");
+
+      }catch(e){
+        console.error(e);
+        alert("บันทึก global ไม่สำเร็จ: " + (e.message || e));
+      }finally{
+        isSavingGlobal = false;
+      }
+    }
+
+    async function addStaff(){
+      if(!isAdmin) return alert("เพิ่มพนักงานได้เฉพาะ Admin");
+
+      const name = els.staffName.value.trim();
+      if(!name) return alert("กรุณากรอกชื่อพนักงาน");
+
+      const exists = state.staff.some(s =>
+        String(s.name).toLowerCase() === name.toLowerCase()
+      );
+
+      if(exists) return alert("ชื่อนี้มีอยู่แล้ว");
+
+      try{
+        setSyncInfo("กำลังเพิ่มพนักงาน...");
+
+        const docRef = await addDoc(collection(db, "staff"), {
+          name,
+          created_at: serverTimestamp(),
+          pay_rate: 0,
+          weekend_enabled: false,
+          public_holiday_enabled: false
+        });
+
+        els.staffName.value = "";
+        state.selectedStaffId = docRef.id;
+
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("เพิ่มพนักงานไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function renameStaff(){
+      if(!requireAdmin()) return;
+      if(!renamingStaffId) return;
+
+      const newName = els.renameStaffInput.value.trim();
+      if(!newName) return alert("กรุณากรอกชื่อใหม่");
+
+      const duplicate = state.staff.some(s =>
+        String(s.id) !== String(renamingStaffId) &&
+        String(s.name).toLowerCase() === newName.toLowerCase()
+      );
+
+      if(duplicate) return alert("ชื่อนี้มีอยู่แล้ว");
+
+      try{
+        await updateDoc(doc(db, "staff", renamingStaffId), {
+          name:newName,
+          updated_at:serverTimestamp()
+        });
+
+        const sessionsToUpdate = state.sessions.filter(s => String(s.staff_id) === String(renamingStaffId));
+
+        for(const s of sessionsToUpdate){
+          await updateDoc(doc(db, "sessions", s.id), {
+            staff_name:newName
+          });
+        }
+
+        closeRenameModal();
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("เปลี่ยนชื่อไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function saveStaffRate(){
+      if(!requireAdmin()) return;
+      if(!editingStaffRateId) return;
+
+      const rate = Number(els.staffRateInput.value || 0);
+
+      if(rate < 0 || isNaN(rate)){
+        return alert("pay rate ไม่ถูกต้อง");
+      }
+
+      try{
+        await updateDoc(doc(db, "staff", editingStaffRateId), {
+          pay_rate:rate,
+          weekend_enabled:els.staffWeekendEnabled.checked,
+          public_holiday_enabled:els.staffPublicHolidayEnabled.checked,
+          updated_at:serverTimestamp()
+        });
+
+        closeStaffRateModal();
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("บันทึกเรทไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function clockIn(){
+      const staff = getSelectedStaff();
+      if(!staff) return alert("กรุณาเลือกพนักงาน");
+
+      const open = findOpenSession(staff.id);
+      if(open) return alert("พนักงานคนนี้ Clock in อยู่แล้ว");
+
+      try{
+        setSyncInfo("กำลัง Clock in...");
+
+        await addDoc(collection(db, "sessions"), {
+          staff_id:staff.id,
+          staff_name:staff.name,
+          clock_in:nowTimestamp(),
+          clock_out:null,
+          break_minutes:0,
+          break_started_at:null,
+          created_at:serverTimestamp(),
+          pay_rate:Number(staff.pay_rate || 0),
+          manual_public_holiday:""
+        });
+
+        state.latestSummary = null;
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("Clock in ไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function startBreak(){
+      const staff = getSelectedStaff();
+      if(!staff) return alert("กรุณาเลือกพนักงาน");
+
+      const open = findOpenSession(staff.id);
+      if(!open) return alert("ต้อง Clock in ก่อน");
+      if(open.break_started_at) return alert("ตอนนี้อยู่ในช่วงพักแล้ว");
+
+      try{
+        await updateDoc(doc(db, "sessions", open.id), {
+          break_started_at:nowTimestamp()
+        });
+
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("Start break ไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function resumeBreak(){
+      const staff = getSelectedStaff();
+      if(!staff) return alert("กรุณาเลือกพนักงาน");
+
+      const open = findOpenSession(staff.id);
+      if(!open) return alert("ต้อง Clock in ก่อน");
+      if(!open.break_started_at) return alert("ตอนนี้ไม่ได้อยู่ในช่วงพัก");
+
+      const startedAt = toDateSafe(open.break_started_at);
+      const extraMinutes = Math.max(0, Math.round((Date.now() - startedAt.getTime()) / 60000));
+      const newBreakMinutes = Number(open.break_minutes || 0) + extraMinutes;
+
+      try{
+        await updateDoc(doc(db, "sessions", open.id), {
+          break_minutes:newBreakMinutes,
+          break_started_at:null
+        });
+
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("Resume work ไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function clockOut(){
+      const staff = getSelectedStaff();
+      if(!staff) return alert("กรุณาเลือกพนักงาน");
+
+      const open = findOpenSession(staff.id);
+      if(!open) return alert("พนักงานคนนี้ยังไม่ได้ Clock in");
+
+      let newBreakMinutes = Number(open.break_minutes || 0);
+
+      if(open.break_started_at){
+        const startedAt = toDateSafe(open.break_started_at);
+        const extraMinutes = Math.max(0, Math.round((Date.now() - startedAt.getTime()) / 60000));
+        newBreakMinutes += extraMinutes;
+      }
+
+      try{
+        const outTs = nowTimestamp();
+
+        await updateDoc(doc(db, "sessions", open.id), {
+          clock_out:outTs,
+          break_minutes:newBreakMinutes,
+          break_started_at:null
+        });
+
+        const closedLocal = {
+          ...open,
+          clock_out:outTs,
+          break_minutes:newBreakMinutes,
+          break_started_at:null
+        };
+
+        state.latestSummary = {
+          name:staff.name,
+          gross:formatDuration(calcSessionGrossMs(closedLocal)),
+          break:formatDuration(minutesToMs(newBreakMinutes)),
+          net:formatDuration(calcSessionNetMs(closedLocal))
+        };
+
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("Clock out ไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    function openAdminModal(){
+      els.adminId.value = "";
+      els.adminPassword.value = "";
+      els.adminModal.classList.add("show");
+    }
+
+    function closeAdminModal(){
+      els.adminModal.classList.remove("show");
+    }
+
+    function loginAdmin(){
+      const id = els.adminId.value.trim();
+      const password = els.adminPassword.value;
+
+      if(id === ADMIN_ID && password === ADMIN_PASSWORD){
+        isAdmin = true;
+        localStorage.setItem("clockInAdmin", "true");
+        closeAdminModal();
+        renderAll();
+        alert("เข้าสู่ระบบ Admin สำเร็จ");
+      }else{
+        alert("ID หรือ Password ไม่ถูกต้อง");
+      }
+    }
+
+    function logoutAdmin(){
+      isAdmin = false;
+      localStorage.removeItem("clockInAdmin");
+      renderAll();
+      alert("ออกจากระบบ Admin แล้ว");
+    }
+
+    function requireAdmin(){
+      if(!isAdmin){
+        alert("ฟังก์ชันนี้ใช้ได้เฉพาะ Admin");
+        return false;
+      }
+      return true;
+    }
+
+    function openRenameModal(staffId, currentName){
+      if(!requireAdmin()) return;
+      renamingStaffId = staffId;
+      els.renameStaffInput.value = currentName || "";
+      els.renameModal.classList.add("show");
+    }
+
+    function closeRenameModal(){
+      renamingStaffId = null;
+      els.renameModal.classList.remove("show");
+    }
+
+    function openStaffRateModal(staffId, staff){
+      if(!requireAdmin()) return;
+
+      editingStaffRateId = staffId;
+      els.staffRateInput.value = Number(staff.pay_rate || 0);
+      els.staffWeekendEnabled.checked = boolFromValue(staff.weekend_enabled);
+      els.staffPublicHolidayEnabled.checked = boolFromValue(staff.public_holiday_enabled);
+      els.staffRateModal.classList.add("show");
+    }
+
+    function closeStaffRateModal(){
+      editingStaffRateId = null;
+      els.staffRateModal.classList.remove("show");
+    }
+
+    function toDatetimeLocalValue(value){
+      const d = toDateSafe(value);
+      if(!d || isNaN(d)) return "";
+      const pad = n => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function findSessionById(id){
+      return state.sessions.find(s => String(s.id) === String(id)) || null;
+    }
+
+    function openEditModal(sessionId){
+      if(!requireAdmin()) return;
+
+      const session = findSessionById(sessionId);
+      if(!session) return alert("ไม่พบรายการเวลา");
+
+      editingSessionId = sessionId;
+      els.editClockIn.value = toDatetimeLocalValue(session.clock_in);
+      els.editClockOut.value = toDatetimeLocalValue(session.clock_out);
+      els.editBreakMinutes.value = Number(session.break_minutes || 0);
+      els.editPayRate.value = Number(session.pay_rate || 0);
+      els.editManualPublicHoliday.value = session.manual_public_holiday || "";
+      els.editModal.classList.add("show");
+    }
+
+    function closeEditModal(){
+      editingSessionId = null;
+      els.editModal.classList.remove("show");
+    }
+
+    async function saveEditedSession(){
+      if(!requireAdmin()) return;
+      if(!editingSessionId) return;
+
+      const clockIn = els.editClockIn.value;
+      const clockOut = els.editClockOut.value;
+      const breakMinutes = Number(els.editBreakMinutes.value || 0);
+      const payRate = Number(els.editPayRate.value || 0);
+      const manualPublicHoliday = els.editManualPublicHoliday.value || "";
+
+      if(!clockIn || !clockOut){
+        return alert("กรุณากรอกเวลาให้ครบ");
+      }
+
+      const inDate = new Date(clockIn);
+      const outDate = new Date(clockOut);
+
+      if(isNaN(inDate) || isNaN(outDate)){
+        return alert("รูปแบบเวลาไม่ถูกต้อง");
+      }
+
+      if(outDate <= inDate){
+        return alert("Clock out ต้องมากกว่า Clock in");
+      }
+
+      const grossMs = outDate - inDate;
+
+      if(breakMinutes * 60000 >= grossMs){
+        return alert("เวลาพักต้องน้อยกว่าเวลาทำงานทั้งหมด");
+      }
+
+      if(payRate < 0 || isNaN(payRate)){
+        return alert("pay rate ไม่ถูกต้อง");
+      }
+
+      try{
+        await updateDoc(doc(db, "sessions", editingSessionId), {
+          clock_in:Timestamp.fromDate(inDate),
+          clock_out:Timestamp.fromDate(outDate),
+          break_minutes:breakMinutes,
+          break_started_at:null,
+          pay_rate:payRate,
+          manual_public_holiday:manualPublicHoliday
+        });
+
+        closeEditModal();
+        await loadAllData();
+
+      }catch(e){
+        console.error(e);
+        alert("แก้ไขไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    async function deleteSessionRow(sessionId){
+      if(!requireAdmin()) return;
+      if(!confirm("ลบรายการเวลาทำงานนี้ใช่ไหม?")) return;
+
+      try{
+        await deleteDoc(doc(db, "sessions", sessionId));
+        await loadAllData();
+      }catch(e){
+        console.error(e);
+        alert("ลบไม่สำเร็จ: " + (e.message || e));
+      }
+    }
+
+    function openExportModal(){
+      if(!requireAdmin()) return;
+      els.exportModal.classList.add("show");
+    }
+
+    function closeExportModal(){
+      els.exportModal.classList.remove("show");
+    }
+
+    function downloadCsv(){
+      if(!requireAdmin()) return;
+
+      const staff = getSelectedStaff();
+      if(!staff) return alert("กรุณาเลือกพนักงาน");
+
+      const fromDate = els.exportFrom.value;
+      const toDate = els.exportTo.value;
+
+      if(!fromDate || !toDate){
+        return alert("กรุณาเลือกช่วงวันที่");
+      }
+
+      if(new Date(fromDate) > new Date(toDate)){
+        return alert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
+      }
+
+      const sessions = filterSessionsByDateRange(
+        getSessionsForStaff(staff.id).filter(s => !!s.clock_out),
+        fromDate,
+        toDate
+      ).sort((a,b) => toDateSafe(a.clock_in) - toDateSafe(b.clock_in));
+
+      if(sessions.length === 0){
+        return alert("ไม่มีข้อมูลในช่วงวันที่ที่เลือก");
+      }
+
+      const rows = [
+        [
+          "ชื่อ",
+          "วันที่",
+          "Clock in",
+          "Clock out",
+          "พักรวม",
+          "สุทธิ",
+          "Pay rate",
+          "Multiplier",
+          "Pay"
+        ]
+      ];
+
+      sessions.forEach(s => {
+        const calc = calculateSessionPay(s);
+        rows.push([
+          s.staff_name || "",
+          formatDateOnly(s.clock_in),
+          formatTimeOnly(s.clock_in),
+          formatTimeOnly(s.clock_out),
+          formatDuration(minutesToMs(Number(s.break_minutes || 0))),
+          formatDuration(calcSessionNetMs(s)),
+          money(s.pay_rate),
+          calc.multiplier.toFixed(2),
+          money(calc.pay)
+        ]);
+      });
+
+      const csv = rows.map(row =>
+        row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")
+      ).join("\n");
+
+      const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Payroll_${staff.name}_${fromDate}_to_${toDate}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      closeExportModal();
+    }
+
+    els.addStaffBtn.addEventListener("click", addStaff);
+    els.refreshBtn.addEventListener("click", loadAllData);
+    els.refreshBtn2.addEventListener("click", loadAllData);
+
+    els.weekendApplyAll.addEventListener("change", saveGlobalSettings);
+    els.publicHolidayApplyAll.addEventListener("change", saveGlobalSettings);
+
+    els.clockInBtn.addEventListener("click", clockIn);
+    els.clockOutBtn.addEventListener("click", clockOut);
+    els.startBreakBtn.addEventListener("click", startBreak);
+    els.resumeBreakBtn.addEventListener("click", resumeBreak);
+
+    els.exportCsvBtn.addEventListener("click", openExportModal);
+    els.generateExportBtn.addEventListener("click", downloadCsv);
+    els.closeExportBtn.addEventListener("click", closeExportModal);
+
+    els.calcDailyBtn.addEventListener("click", renderDailySummary);
+    els.calcWeeklyBtn.addEventListener("click", renderWeeklySummary);
+
+    els.openAdminBtn.addEventListener("click", openAdminModal);
+    els.closeAdminBtn.addEventListener("click", closeAdminModal);
+    els.loginAdminBtn.addEventListener("click", loginAdmin);
+    els.logoutAdminBtn.addEventListener("click", logoutAdmin);
+
+    els.saveRenameBtn.addEventListener("click", renameStaff);
+    els.cancelRenameBtn.addEventListener("click", closeRenameModal);
+
+    els.saveStaffRateBtn.addEventListener("click", saveStaffRate);
+    els.cancelStaffRateBtn.addEventListener("click", closeStaffRateModal);
+
+    els.saveEditBtn.addEventListener("click", saveEditedSession);
+    els.cancelEditBtn.addEventListener("click", closeEditModal);
+
+    els.staffSelect.addEventListener("change", e => {
+      state.selectedStaffId = e.target.value || null;
+      renderAll();
+    });
+
+    els.staffName.addEventListener("keydown", e => {
+      if(e.key === "Enter") addStaff();
+    });
+
+    els.adminPassword.addEventListener("keydown", e => {
+      if(e.key === "Enter") loginAdmin();
+    });
+
+    els.renameStaffInput.addEventListener("keydown", e => {
+      if(e.key === "Enter") renameStaff();
+    });
+
+    els.staffRateInput.addEventListener("keydown", e => {
+      if(e.key === "Enter") saveStaffRate();
+    });
+
+    function updateClock(){
+      const now = new Date();
+
+      els.liveClock.textContent = now.toLocaleString("en-AU", {
+        weekday:"short",
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit",
+        hour:"2-digit",
+        minute:"2-digit",
+        second:"2-digit"
+      });
+
+      renderStatus();
+    }
+
+    async function init(){
+      isAdmin = localStorage.getItem("clockInAdmin") === "true";
+
+      updateAdminUI();
+      setDefaultDateFilters();
+
+      await loadAllData();
+
+      updateClock();
+      setInterval(updateClock, 1000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
