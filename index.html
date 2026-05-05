@@ -1144,6 +1144,16 @@
     let editingStaffRateId = null;
     let isSavingGlobal = false;
 
+    const params = new URLSearchParams(window.location.search);
+    const isAdminPage =
+      params.get("admin") === "1" ||
+      params.get("admin") === "true" ||
+      window.location.hash === "#admin";
+
+    function isStaffPage(){
+      return !isAdminPage;
+    }
+
     function setSyncInfo(text){
       els.syncInfo.textContent = "Status: " + text;
     }
@@ -1530,6 +1540,19 @@
     }
 
     function updateAdminUI(){
+      if(isStaffPage()){
+        els.adminBadge.textContent = "";
+        els.adminBadge.className = "pill off hidden";
+        els.openAdminBtn.style.display = "none";
+        els.logoutAdminBtn.style.display = "none";
+        els.exportToolbar.classList.add("hidden");
+        els.adminOnlyAddSection.classList.add("hidden");
+        els.normalRefreshSection.classList.remove("hidden");
+        els.historyCard.classList.add("hidden");
+        els.adminSummaryCard.classList.add("hidden");
+        return;
+      }
+
       if(isAdmin){
         els.adminBadge.textContent = "Admin";
         els.adminBadge.className = "pill admin";
@@ -1541,7 +1564,7 @@
         els.historyCard.classList.remove("hidden");
         els.adminSummaryCard.classList.remove("hidden");
       }else{
-        els.adminBadge.textContent = "";
+        els.adminBadge.textContent = "Admin Login Required";
         els.adminBadge.className = "pill off";
         els.logoutAdminBtn.style.display = "none";
         els.openAdminBtn.style.display = "inline-block";
@@ -2563,7 +2586,7 @@
     }
 
     async function init(){
-      isAdmin = localStorage.getItem("clockInAdmin") === "true";
+      isAdmin = isAdminPage && localStorage.getItem("clockInAdmin") === "true";
 
       updateAdminUI();
       setDefaultDateFilters();
@@ -2572,6 +2595,10 @@
 
       updateClock();
       setInterval(updateClock, 1000);
+
+      if(isAdminPage && !isAdmin){
+        setTimeout(openAdminModal, 250);
+      }
     }
 
     init();
