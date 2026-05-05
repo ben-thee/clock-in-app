@@ -940,6 +940,259 @@
       }
     }
 
+
+    /* iPhone admin view: keep iPad-like layout and show full session/status panel */
+    @media(max-width:760px){
+      body.admin-page .wrap{
+        min-width:760px;
+        padding:8px;
+        padding-bottom:calc(18px + var(--safe-bottom));
+      }
+
+      body.admin-page .topbar{
+        position:relative;
+        top:auto;
+        margin-bottom:8px;
+        padding:9px 10px;
+        border-radius:18px;
+      }
+
+      body.admin-page .logo{
+        width:34px;
+        height:34px;
+        border-radius:12px;
+        font-size:17px;
+      }
+
+      body.admin-page h1{
+        font-size:18px;
+      }
+
+      body.admin-page .subtitle{
+        font-size:11px;
+      }
+
+      body.admin-page .admin-controls button{
+        min-height:36px;
+        padding:7px 10px;
+        font-size:13px;
+        border-radius:12px;
+      }
+
+      body.admin-page .grid{
+        grid-template-columns:150px 1fr;
+        gap:8px;
+        align-items:start;
+      }
+
+      body.admin-page .card{
+        padding:9px;
+        border-radius:16px;
+        margin-bottom:8px;
+      }
+
+      body.admin-page .card h2{
+        font-size:15px;
+        margin-bottom:7px;
+      }
+
+      body.admin-page label{
+        font-size:11px;
+        margin:6px 0 4px;
+      }
+
+      body.admin-page input,
+      body.admin-page select,
+      body.admin-page button{
+        font-size:13px;
+        padding:8px 9px;
+        border-radius:12px;
+      }
+
+      body.admin-page .toolbar{
+        gap:6px;
+        margin-top:7px;
+      }
+
+      body.admin-page .flag-item{
+        padding:6px;
+        border-radius:11px;
+        gap:5px;
+      }
+
+      body.admin-page .flag-item label{
+        font-size:10px;
+        line-height:1.15;
+      }
+
+      body.admin-page input[type="checkbox"]{
+        transform:scale(.95);
+      }
+
+      body.admin-page .sync-box{
+        margin-top:7px;
+        padding:6px 7px;
+        font-size:10px;
+        border-radius:11px;
+      }
+
+      body.admin-page .staff-list{
+        gap:5px;
+        margin-top:7px;
+        max-height:78vh;
+        overflow:auto;
+      }
+
+      body.admin-page .staff-item{
+        padding:6px 7px;
+        border-radius:12px;
+      }
+
+      body.admin-page .staff-name{
+        font-size:12px;
+        max-width:76px;
+      }
+
+      body.admin-page .staff-status .pill{
+        font-size:8px;
+        padding:3px 5px;
+      }
+
+      body.admin-page .staff-dropdown{
+        margin-top:6px;
+        padding-top:6px;
+      }
+
+      body.admin-page .staff-dropdown-actions{
+        grid-template-columns:1fr;
+        gap:5px;
+      }
+
+      body.admin-page .staff-dropdown-actions button{
+        min-height:30px;
+        padding:6px 7px;
+        font-size:11px;
+        border-radius:10px;
+      }
+
+      body.admin-page .clock{
+        font-size:19px;
+        margin:2px 0 0;
+      }
+
+      body.admin-page .selected-banner{
+        margin-top:7px;
+        padding:8px 9px;
+        font-size:13px;
+        border-radius:12px;
+      }
+
+      body.admin-page .clock-actions{
+        gap:7px;
+        margin-top:8px;
+        grid-template-columns:1fr 1fr;
+      }
+
+      body.admin-page .clock-actions .btn{
+        min-height:38px;
+        padding:8px 8px;
+        font-size:13px;
+        border-radius:12px;
+      }
+
+      body.admin-page #exportToolbar{
+        margin-top:7px;
+      }
+
+      body.admin-page #exportToolbar .btn{
+        min-height:38px;
+        padding:8px;
+        font-size:13px;
+      }
+
+      body.admin-page .status{
+        margin-top:8px;
+        padding:8px;
+        border-radius:14px;
+      }
+
+      body.admin-page .status .big{
+        font-size:14px;
+        margin-bottom:4px;
+      }
+
+      body.admin-page .status .small{
+        font-size:10px;
+      }
+
+      body.admin-page .status-grid{
+        grid-template-columns:1fr 1fr !important;
+        gap:6px;
+        margin-top:7px;
+      }
+
+      body.admin-page .status-metric{
+        padding:7px 8px;
+        border-radius:12px;
+      }
+
+      body.admin-page .status-metric .label{
+        font-size:9px;
+      }
+
+      body.admin-page .status-metric .value{
+        font-size:14px;
+      }
+
+      body.admin-page .summary-box{
+        margin-top:8px;
+        padding:8px;
+        border-radius:14px;
+      }
+
+      body.admin-page .summary-grid{
+        grid-template-columns:1fr 1fr !important;
+        gap:6px;
+      }
+
+      body.admin-page .metric{
+        padding:8px;
+        border-radius:12px;
+      }
+
+      body.admin-page .metric .label{
+        font-size:10px;
+      }
+
+      body.admin-page .metric .value{
+        font-size:14px;
+      }
+
+      body.admin-page th,
+      body.admin-page td{
+        padding:7px 6px;
+        font-size:11px;
+      }
+    }
+
+    @media(max-width:390px){
+      body.admin-page .wrap{
+        min-width:760px;
+      }
+
+      body.admin-page .grid{
+        grid-template-columns:150px 1fr;
+      }
+
+      body.admin-page .status-grid{
+        grid-template-columns:1fr 1fr !important;
+      }
+
+      body.admin-page .summary-grid{
+        grid-template-columns:1fr 1fr !important;
+      }
+    }
+
   </style>
 </head>
 
