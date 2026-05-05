@@ -68,8 +68,7 @@
       border:1px solid var(--border);
       border-radius:24px;
       box-shadow:var(--shadow);
-      position:sticky;
-      top:8px;
+      position:relative;
       z-index:30;
     }
 
@@ -587,7 +586,7 @@
       }
 
       .topbar{
-        top:6px;
+        top:auto;
         padding:12px;
         border-radius:22px;
         align-items:flex-start;
@@ -706,6 +705,212 @@
         max-width:146px;
       }
     }
+
+    /* Admin link layout: compact left staff sidebar, better for 30+ staff */
+    body.admin-page .topbar{
+      position:relative;
+      top:auto;
+    }
+
+    body.admin-page .staff-list{
+      max-height:70vh;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    body.admin-page .staff-item{
+      padding:9px 10px;
+      border-radius:14px;
+    }
+
+    body.admin-page .staff-name{
+      font-size:14px;
+      max-width:100%;
+    }
+
+    body.admin-page .staff-main{
+      gap:6px;
+      align-items:center;
+    }
+
+    body.admin-page .staff-status .pill{
+      font-size:10px;
+      padding:4px 7px;
+    }
+
+    body.admin-page .staff-dropdown{
+      margin-top:7px;
+      padding-top:7px;
+    }
+
+    body.admin-page .staff-dropdown-actions{
+      grid-template-columns:1fr;
+      gap:6px;
+    }
+
+    body.admin-page .staff-dropdown-actions button{
+      min-height:34px;
+      padding:7px 8px;
+      font-size:12px;
+      border-radius:11px;
+    }
+
+    @media(max-width:760px){
+      body.admin-page .wrap{
+        padding:8px;
+        padding-bottom:calc(18px + var(--safe-bottom));
+      }
+
+      body.admin-page .topbar{
+        position:relative;
+        top:auto;
+        padding:10px;
+        margin-bottom:10px;
+      }
+
+      body.admin-page .admin-controls{
+        width:100%;
+      }
+
+      body.admin-page .admin-controls button{
+        min-height:40px;
+        padding:8px 10px;
+      }
+
+      body.admin-page .grid{
+        grid-template-columns:minmax(130px, 36vw) minmax(250px, 1fr);
+        gap:8px;
+        align-items:start;
+      }
+
+      body.admin-page .card{
+        padding:10px;
+        border-radius:17px;
+      }
+
+      body.admin-page .card h2{
+        font-size:16px;
+        margin-bottom:9px;
+      }
+
+      body.admin-page label{
+        font-size:11px;
+        margin:8px 0 5px;
+      }
+
+      body.admin-page input,
+      body.admin-page select,
+      body.admin-page button{
+        font-size:14px;
+        padding:10px 11px;
+        border-radius:13px;
+      }
+
+      body.admin-page .staff-list{
+        gap:6px;
+        margin-top:8px;
+        max-height:78vh;
+      }
+
+      body.admin-page .staff-item{
+        padding:7px 8px;
+        border-radius:13px;
+      }
+
+      body.admin-page .staff-name{
+        font-size:13px;
+        max-width:82px;
+      }
+
+      body.admin-page .staff-status .pill{
+        font-size:9px;
+        padding:3px 6px;
+      }
+
+      body.admin-page .sync-box{
+        font-size:11px;
+        padding:7px 8px;
+        margin-top:8px;
+      }
+
+      body.admin-page #adminOnlyAddSection input{
+        padding:9px;
+      }
+
+      body.admin-page #adminOnlyAddSection .toolbar{
+        grid-template-columns:1fr;
+        gap:6px;
+        margin-top:8px;
+      }
+
+      body.admin-page .flag-item{
+        padding:7px;
+        border-radius:12px;
+        font-size:11px;
+      }
+
+      body.admin-page .flag-item label{
+        font-size:11px;
+      }
+
+      body.admin-page .clock{
+        font-size:20px;
+      }
+
+      body.admin-page .clock-actions{
+        gap:7px;
+      }
+
+      body.admin-page .clock-actions .btn{
+        min-height:40px;
+        font-size:13px;
+        padding:9px 8px;
+      }
+
+      body.admin-page .selected-banner{
+        padding:9px 10px;
+        font-size:13px;
+      }
+
+      body.admin-page .status{
+        padding:10px;
+      }
+
+      body.admin-page .status .big{
+        font-size:15px;
+      }
+
+      body.admin-page .status-grid{
+        grid-template-columns:1fr;
+        gap:7px;
+      }
+
+      body.admin-page .summary-grid{
+        grid-template-columns:1fr;
+        gap:7px;
+      }
+
+      body.admin-page .metric{
+        padding:9px;
+      }
+
+      body.admin-page th,
+      body.admin-page td{
+        padding:8px 7px;
+        font-size:12px;
+      }
+    }
+
+    @media(max-width:390px){
+      body.admin-page .grid{
+        grid-template-columns:128px minmax(240px, 1fr);
+      }
+
+      body.admin-page .staff-name{
+        max-width:74px;
+      }
+    }
+
   </style>
 </head>
 
@@ -2586,6 +2791,9 @@
     }
 
     async function init(){
+      document.body.classList.toggle("admin-page", isAdminPage);
+      document.body.classList.toggle("staff-page", !isAdminPage);
+
       isAdmin = isAdminPage && localStorage.getItem("clockInAdmin") === "true";
 
       updateAdminUI();
