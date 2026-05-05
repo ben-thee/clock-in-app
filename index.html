@@ -2,72 +2,83 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+  <!-- Zoom enabled: no maximum-scale -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
   <title>Clock In App</title>
+
+  <!-- XLSX Export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     :root{
-      --bg:#f4f7fb;
+      --bg:#f5f7fb;
       --card:#ffffff;
-      --card2:#f8fafc;
+      --soft:#f8fafc;
       --text:#0f172a;
       --muted:#64748b;
       --border:#e2e8f0;
       --blue:#2563eb;
-      --blue2:#eff6ff;
+      --blue-soft:#eff6ff;
       --green:#16a34a;
-      --green2:#ecfdf5;
+      --green-soft:#ecfdf5;
       --red:#dc2626;
-      --red2:#fef2f2;
+      --red-soft:#fef2f2;
       --orange:#ea580c;
-      --orange2:#fff7ed;
+      --orange-soft:#fff7ed;
       --purple:#7c3aed;
-      --purple2:#f5f3ff;
       --cyan:#0891b2;
-      --cyan2:#ecfeff;
-      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --shadow:0 12px 28px rgba(15,23,42,.08);
       --radius:22px;
+      --safe-bottom:env(safe-area-inset-bottom,0px);
     }
 
     *{box-sizing:border-box}
+
+    html{
+      -webkit-text-size-adjust:100%;
+    }
 
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 28%),
-        linear-gradient(180deg,#f8fafc,#eef4fb 48%,#f8fafc);
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 30%),
+        linear-gradient(180deg,#ffffff,#f5f7fb 45%,#eef4fb);
       color:var(--text);
+      min-height:100vh;
       -webkit-tap-highlight-color:transparent;
     }
 
     .wrap{
-      max-width:1280px;
+      max-width:1180px;
       margin:0 auto;
-      padding:18px;
+      padding:14px;
+      padding-bottom:calc(24px + var(--safe-bottom));
     }
 
     .topbar{
+      position:sticky;
+      top:8px;
+      z-index:30;
       display:flex;
-      justify-content:space-between;
       align-items:center;
+      justify-content:space-between;
       gap:12px;
-      padding:14px 16px;
-      margin-bottom:18px;
-      background:rgba(255,255,255,.82);
+      padding:13px 14px;
+      margin-bottom:14px;
+      background:rgba(255,255,255,.90);
       backdrop-filter:blur(14px);
       border:1px solid var(--border);
       border-radius:24px;
       box-shadow:var(--shadow);
-      position:sticky;
-      top:10px;
-      z-index:20;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:11px;
       min-width:0;
     }
 
@@ -76,69 +87,70 @@
       height:42px;
       border-radius:16px;
       background:linear-gradient(135deg,#2563eb,#06b6d4);
+      color:#fff;
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#fff;
-      font-weight:900;
-      box-shadow:0 10px 20px rgba(37,99,235,.22);
+      font-weight:950;
+      font-size:20px;
       flex:0 0 auto;
+      box-shadow:0 10px 20px rgba(37,99,235,.22);
     }
 
     h1{
       margin:0;
-      font-size:22px;
-      line-height:1.15;
-      letter-spacing:-.02em;
+      font-size:21px;
+      line-height:1.12;
+      letter-spacing:-.03em;
     }
 
     .subtitle{
-      color:var(--muted);
-      font-size:12px;
       margin-top:3px;
+      font-size:12px;
+      color:var(--muted);
     }
 
     .admin-controls{
       display:flex;
-      gap:8px;
       align-items:center;
-      flex-wrap:wrap;
       justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
     }
 
     .grid{
       display:grid;
       grid-template-columns:360px 1fr;
-      gap:18px;
-    }
-
-    @media(max-width:1050px){
-      .grid{grid-template-columns:1fr}
-      .wrap{padding:12px}
-      .topbar{top:8px}
+      gap:14px;
+      align-items:start;
     }
 
     .card{
-      background:rgba(255,255,255,.94);
+      background:rgba(255,255,255,.96);
       border:1px solid var(--border);
       border-radius:var(--radius);
-      padding:18px;
-      margin-bottom:18px;
+      padding:16px;
+      margin-bottom:14px;
       box-shadow:var(--shadow);
     }
 
-    .card h2{
-      margin:0 0 14px;
+    .clock-card{
+      background:linear-gradient(135deg,#ffffff,#eff6ff);
+      border-color:#bfdbfe;
+    }
+
+    h2{
+      margin:0 0 12px;
       font-size:18px;
-      letter-spacing:-.01em;
+      letter-spacing:-.02em;
     }
 
     label{
       display:block;
+      margin:12px 0 6px;
       color:#334155;
       font-size:13px;
-      font-weight:700;
-      margin:12px 0 6px;
+      font-weight:800;
     }
 
     input,select,button{
@@ -148,8 +160,9 @@
       background:#fff;
       color:var(--text);
       padding:13px 14px;
-      font-size:15px;
+      font-size:16px;
       outline:none;
+      font-family:inherit;
     }
 
     input:focus,select:focus{
@@ -169,30 +182,30 @@
       gap:10px;
     }
 
-    @media(max-width:760px){
-      .row{grid-template-columns:1fr}
-    }
-
     .toolbar{
-      display:flex;
-      flex-wrap:wrap;
+      display:grid;
+      grid-template-columns:1fr 1fr;
       gap:10px;
-      margin-top:14px;
+      margin-top:12px;
     }
 
-    .toolbar button{
-      flex:1 1 160px;
+    .toolbar.one{
+      grid-template-columns:1fr;
     }
 
     .btn{
       cursor:pointer;
-      font-weight:900;
       border:none;
+      font-weight:950;
+      min-height:46px;
       user-select:none;
       transition:.15s ease;
     }
 
-    .btn:active{transform:scale(.98)}
+    .btn:active{
+      transform:scale(.98);
+    }
+
     .btn.blue{background:var(--blue);color:#fff}
     .btn.green{background:var(--green);color:#fff}
     .btn.red{background:var(--red);color:#fff}
@@ -212,7 +225,7 @@
       margin-top:12px;
       padding:10px 12px;
       border-radius:16px;
-      background:var(--card2);
+      background:var(--soft);
       border:1px solid var(--border);
       color:var(--muted);
       font-size:13px;
@@ -225,20 +238,92 @@
       padding:5px 10px;
       border-radius:999px;
       font-size:12px;
-      font-weight:900;
+      font-weight:950;
       white-space:nowrap;
     }
 
-    .pill.working{background:var(--green2);color:var(--green);border:1px solid #bbf7d0}
-    .pill.break{background:var(--orange2);color:var(--orange);border:1px solid #fed7aa}
+    .pill.working{background:var(--green-soft);color:var(--green);border:1px solid #bbf7d0}
+    .pill.break{background:var(--orange-soft);color:var(--orange);border:1px solid #fed7aa}
     .pill.off{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
-    .pill.admin{background:var(--blue2);color:var(--blue);border:1px solid #bfdbfe}
+    .pill.admin{background:var(--blue-soft);color:var(--blue);border:1px solid #bfdbfe}
+
+    .clock{
+      margin:4px 0 2px;
+      font-size:25px;
+      font-weight:950;
+      letter-spacing:-.03em;
+    }
+
+    .selected-banner{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:var(--blue-soft);
+      border:1px solid #bfdbfe;
+      font-weight:950;
+      color:#1d4ed8;
+    }
+
+    .clock-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .clock-actions .btn{
+      min-height:46px;
+      border-radius:16px;
+      font-size:15px;
+    }
+
+    .status{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      background:#f8fafc;
+      border:1px solid var(--border);
+    }
+
+    .status .big{
+      font-size:17px;
+      font-weight:950;
+      margin-bottom:8px;
+    }
+
+    .status-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .status-metric{
+      padding:11px;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid var(--border);
+    }
+
+    .status-metric .label{
+      font-size:11px;
+      color:var(--muted);
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .status-metric .value{
+      margin-top:4px;
+      font-size:16px;
+      font-weight:950;
+    }
 
     .staff-list{
       display:grid;
       gap:10px;
       margin-top:14px;
-      max-height:460px;
+      max-height:520px;
       overflow:auto;
       padding-right:2px;
     }
@@ -248,25 +333,35 @@
       border-radius:18px;
       border:1px solid var(--border);
       background:#fff;
-      display:flex;
-      justify-content:space-between;
-      gap:8px;
-      align-items:flex-start;
+      cursor:pointer;
       transition:.15s ease;
     }
 
     .staff-item.selected{
-      background:var(--blue2);
+      background:var(--blue-soft);
       border-color:#93c5fd;
       box-shadow:0 0 0 4px rgba(37,99,235,.08);
     }
 
+    .staff-main{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:flex-start;
+      width:100%;
+    }
+
+    .staff-left{
+      min-width:0;
+      flex:1;
+    }
+
     .staff-name{
-      font-weight:900;
+      font-weight:950;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
-      max-width:170px;
+      max-width:180px;
       letter-spacing:-.01em;
     }
 
@@ -277,61 +372,48 @@
       line-height:1.5;
     }
 
-    .staff-actions{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      flex:0 0 auto;
-      max-width:170px;
-    }
-
-    .staff-actions button{
-      width:auto;
-      min-width:54px;
-      padding:8px 10px;
-      font-size:12px;
-      border-radius:12px;
-      white-space:nowrap;
-    }
-
-    .selected-banner{
-      margin-top:10px;
-      padding:12px 14px;
-      border-radius:16px;
-      background:var(--blue2);
-      border:1px solid #bfdbfe;
-      font-weight:900;
-      color:#1d4ed8;
-    }
-
-    .clock{
-      font-size:24px;
-      font-weight:950;
-      letter-spacing:-.02em;
-      margin:4px 0 2px;
-      color:#0f172a;
-    }
-
-    .status{
-      padding:14px;
-      border-radius:18px;
-      background:#f8fafc;
-      border:1px solid var(--border);
-      margin-top:14px;
-    }
-
-    .status .big{
+    .staff-arrow{
+      color:var(--muted);
       font-size:17px;
       font-weight:950;
-      margin-bottom:8px;
+      padding-top:2px;
+      flex:0 0 auto;
+    }
+
+    .staff-item.selected .staff-arrow{
+      transform:rotate(180deg);
+    }
+
+    .staff-dropdown{
+      display:none;
+      width:100%;
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px solid var(--border);
+    }
+
+    .staff-item.selected .staff-dropdown{
+      display:block;
+    }
+
+    .staff-dropdown-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .staff-dropdown-actions button{
+      min-height:40px;
+      padding:9px 10px;
+      border-radius:14px;
+      font-size:13px;
     }
 
     .summary-box{
       margin-top:14px;
       padding:14px;
       border-radius:18px;
-      background:var(--green2);
+      background:var(--green-soft);
       border:1px solid #bbf7d0;
     }
 
@@ -347,14 +429,6 @@
       gap:10px;
     }
 
-    @media(max-width:1000px){
-      .summary-grid{grid-template-columns:1fr 1fr}
-    }
-
-    @media(max-width:600px){
-      .summary-grid{grid-template-columns:1fr}
-    }
-
     .metric{
       background:#fff;
       border:1px solid var(--border);
@@ -365,13 +439,19 @@
     .metric .label{
       font-size:12px;
       color:var(--muted);
-      font-weight:700;
+      font-weight:800;
     }
 
     .metric .value{
       font-size:18px;
       font-weight:950;
       margin-top:6px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      margin-top:8px;
     }
 
     table{
@@ -398,10 +478,12 @@
       color:#334155;
       font-size:13px;
       background:#f8fafc;
-      font-weight:900;
+      font-weight:950;
     }
 
-    tr:last-child td{border-bottom:none}
+    tr:last-child td{
+      border-bottom:none;
+    }
 
     .action-col{
       display:flex;
@@ -410,13 +492,14 @@
     }
 
     .mini-btn{
+      width:auto;
+      min-height:34px;
       padding:8px 10px;
       border-radius:12px;
       border:none;
       cursor:pointer;
       font-size:12px;
-      font-weight:900;
-      width:auto;
+      font-weight:950;
     }
 
     .mini-btn.edit{background:#f59e0b;color:#1f1300}
@@ -425,20 +508,22 @@
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(15,23,42,.45);
       display:none;
       align-items:center;
       justify-content:center;
-      padding:20px;
+      padding:16px;
       z-index:9999;
+      background:rgba(15,23,42,.45);
       backdrop-filter:blur(8px);
     }
 
-    .modal.show{display:flex}
+    .modal.show{
+      display:flex;
+    }
 
     .modal-card{
       width:min(820px,100%);
-      max-height:90vh;
+      max-height:88vh;
       overflow:auto;
       background:#fff;
       border:1px solid var(--border);
@@ -470,7 +555,9 @@
       border-radius:16px;
     }
 
-    .flag-item label{margin:0}
+    .flag-item label{
+      margin:0;
+    }
 
     .rate-on{color:var(--green);font-weight:950}
     .rate-off{color:var(--red);font-weight:950}
@@ -479,41 +566,113 @@
     .orange-text{color:var(--orange);font-weight:950}
     .hidden{display:none!important}
 
-    @media(max-width:600px){
+    @media(max-width:1050px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media(max-width:760px){
+      .wrap{
+        padding:10px;
+        padding-bottom:calc(18px + var(--safe-bottom));
+      }
+
       .topbar{
+        top:6px;
+        padding:12px;
+        border-radius:22px;
         align-items:flex-start;
         flex-direction:column;
       }
 
+      .brand{
+        width:100%;
+      }
+
+      h1{
+        font-size:20px;
+      }
+
       .admin-controls{
         width:100%;
-        justify-content:flex-start;
+        justify-content:space-between;
       }
 
       .admin-controls button{
         flex:1;
       }
 
-      .staff-item{
-        padding:10px;
+      .card{
+        padding:14px;
+        border-radius:22px;
+        margin-bottom:12px;
       }
 
-      .staff-actions{
-        max-width:150px;
+      .row{
+        grid-template-columns:1fr;
       }
 
-      .staff-actions button{
-        min-width:48px;
-        padding:8px 9px;
+      .toolbar{
+        grid-template-columns:1fr;
+      }
+
+      .clock{
+        font-size:22px;
+      }
+
+      .clock-actions{
+        grid-template-columns:1fr 1fr;
+        gap:9px;
+      }
+
+      .clock-actions .btn{
+        min-height:44px;
+        padding:11px 10px;
+        font-size:15px;
+      }
+
+      .status-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .summary-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .staff-list{
+        max-height:none;
+      }
+
+      .staff-name{
+        max-width:190px;
+      }
+
+      input,select,button{
+        font-size:16px;
       }
 
       th,td{
         padding:10px 8px;
         font-size:13px;
       }
+    }
 
-      .clock{
-        font-size:21px;
+    @media(max-width:390px){
+      .status-grid{
+        grid-template-columns:1fr;
+      }
+
+      .summary-grid{
+        grid-template-columns:1fr;
+      }
+
+      .staff-name{
+        max-width:140px;
+      }
+
+      .staff-dropdown-actions{
+        grid-template-columns:1fr;
       }
     }
   </style>
@@ -526,7 +685,7 @@
         <div class="logo">⏱</div>
         <div>
           <h1>Clock In / Clock Out</h1>
-          <div class="subtitle">Firebase Firestore Database</div>
+          <div class="subtitle">Staff time clock</div>
         </div>
       </div>
 
@@ -546,7 +705,7 @@
             <label for="staffName">Staff name</label>
             <input id="staffName" placeholder="Example: Ben" />
 
-            <div class="row" style="margin-top:12px;">
+            <div class="toolbar">
               <button class="btn green" id="addStaffBtn">Add Staff</button>
               <button class="btn gray" id="refreshBtn">Refresh</button>
             </div>
@@ -573,7 +732,7 @@
       </div>
 
       <div>
-        <div class="card">
+        <div class="card clock-card">
           <h2>Time Clock</h2>
           <div class="clock" id="liveClock">--:--:--</div>
 
@@ -582,15 +741,15 @@
 
           <div class="selected-banner" id="selectedStaffBanner">Selected: -</div>
 
-          <div class="toolbar">
+          <div class="clock-actions">
             <button class="btn blue" id="clockInBtn">Clock In</button>
             <button class="btn red" id="clockOutBtn">Clock Out</button>
             <button class="btn warn" id="startBreakBtn">Start Break</button>
             <button class="btn purple" id="resumeBreakBtn">Resume Work</button>
           </div>
 
-          <div class="toolbar hidden" id="exportToolbar">
-            <button class="btn green" id="exportCsvBtn">Export CSV</button>
+          <div class="toolbar one hidden" id="exportToolbar">
+            <button class="btn green" id="exportXlsxBtn">Export XLSX</button>
           </div>
 
           <div class="status" id="statusBox">
@@ -656,22 +815,22 @@
             </div>
           </div>
 
-          <div class="toolbar">
+          <div class="toolbar one">
             <button class="btn purple" id="calcWeeklyBtn">Calculate Period</button>
           </div>
 
           <div class="summary-grid" style="margin-top:12px;">
             <div class="metric">
-              <div class="label">Total period hours</div>
+              <div class="label">Period hours</div>
               <div class="value" id="weeklyHoursValue">0.00</div>
             </div>
             <div class="metric">
-              <div class="label">Total period pay</div>
+              <div class="label">Period pay</div>
               <div class="value" id="weeklyPayValue">0.00</div>
             </div>
           </div>
 
-          <div style="overflow:auto;margin-top:12px;">
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
@@ -690,8 +849,8 @@
 
         <div class="card hidden" id="historyCard">
           <h2>Work History</h2>
-          <div class="small">Showing the latest 10 completed sessions. Break over 30 minutes is orange. Net time over 9 hours is red.</div>
-          <div style="overflow:auto;">
+          <div class="small">Latest 10 completed sessions. Break over 30 minutes is orange. Net time over 9 hours is red.</div>
+          <div class="table-wrap">
             <table>
               <thead>
                 <tr>
@@ -714,6 +873,7 @@
     </div>
   </div>
 
+  <!-- Admin Modal -->
   <div class="modal" id="adminModal">
     <div class="modal-card">
       <h3>Admin Login</h3>
@@ -731,6 +891,7 @@
     </div>
   </div>
 
+  <!-- Rename Modal -->
   <div class="modal" id="renameModal">
     <div class="modal-card">
       <h3>Rename Staff</h3>
@@ -745,6 +906,7 @@
     </div>
   </div>
 
+  <!-- Rate Modal -->
   <div class="modal" id="staffRateModal">
     <div class="modal-card">
       <h3>Staff Pay Settings</h3>
@@ -770,6 +932,7 @@
     </div>
   </div>
 
+  <!-- Edit Modal -->
   <div class="modal" id="editModal">
     <div class="modal-card">
       <h3>Edit Work Session</h3>
@@ -800,9 +963,10 @@
     </div>
   </div>
 
+  <!-- Export Modal -->
   <div class="modal" id="exportModal">
     <div class="modal-card">
-      <h3>Export CSV</h3>
+      <h3>Export XLSX</h3>
 
       <div class="row">
         <div>
@@ -816,7 +980,7 @@
       </div>
 
       <div class="row" style="margin-top:16px;">
-        <button class="btn green" id="generateExportBtn">Download CSV</button>
+        <button class="btn green" id="generateExportBtn">Download XLSX</button>
         <button class="btn gray" id="closeExportBtn">Close</button>
       </div>
     </div>
@@ -889,10 +1053,13 @@
       clockOutBtn: document.getElementById("clockOutBtn"),
       startBreakBtn: document.getElementById("startBreakBtn"),
       resumeBreakBtn: document.getElementById("resumeBreakBtn"),
+
       exportToolbar: document.getElementById("exportToolbar"),
-      exportCsvBtn: document.getElementById("exportCsvBtn"),
+      exportXlsxBtn: document.getElementById("exportXlsxBtn"),
+
       adminOnlyAddSection: document.getElementById("adminOnlyAddSection"),
       normalRefreshSection: document.getElementById("normalRefreshSection"),
+
       latestSummary: document.getElementById("latestSummary"),
       sumName: document.getElementById("sumName"),
       sumGross: document.getElementById("sumGross"),
@@ -1383,12 +1550,21 @@
       state.staff.forEach(staff => {
         const weekendOn = boolFromValue(state.settings.weekend_apply_all) || boolFromValue(staff.weekend_enabled);
         const phOn = boolFromValue(state.settings.public_holiday_apply_all) || boolFromValue(staff.public_holiday_enabled);
+        const selected = String(staff.id) === String(state.selectedStaffId);
 
         const div = document.createElement("div");
-        div.className = "staff-item" + (String(staff.id) === String(state.selectedStaffId) ? " selected" : "");
+        div.className = "staff-item" + (selected ? " selected" : "");
+
+        div.onclick = () => {
+          state.selectedStaffId = staff.id;
+          renderAll();
+        };
+
+        const main = document.createElement("div");
+        main.className = "staff-main";
 
         const left = document.createElement("div");
-        left.style.minWidth = "0";
+        left.className = "staff-left";
 
         left.innerHTML = `
           <div class="staff-name">${escapeHtml(staff.name)}</div>
@@ -1402,34 +1578,61 @@
           </div>
         `;
 
-        const actions = document.createElement("div");
-        actions.className = "staff-actions";
+        const arrow = document.createElement("div");
+        arrow.className = "staff-arrow";
+        arrow.textContent = "⌄";
 
-        const selectBtn = document.createElement("button");
-        selectBtn.className = "btn blue";
-        selectBtn.textContent = "Select";
-        selectBtn.onclick = () => {
+        main.appendChild(left);
+        main.appendChild(arrow);
+        div.appendChild(main);
+
+        const dropdown = document.createElement("div");
+        dropdown.className = "staff-dropdown";
+
+        const actions = document.createElement("div");
+        actions.className = "staff-dropdown-actions";
+
+        const useBtn = document.createElement("button");
+        useBtn.className = "btn blue";
+        useBtn.textContent = "Use This Staff";
+        useBtn.onclick = (e) => {
+          e.stopPropagation();
           state.selectedStaffId = staff.id;
           renderAll();
         };
-        actions.appendChild(selectBtn);
+        actions.appendChild(useBtn);
 
         if(isAdmin){
           const renameBtn = document.createElement("button");
           renameBtn.className = "btn warn";
-          renameBtn.textContent = "Name";
-          renameBtn.onclick = () => openRenameModal(staff.id, staff.name);
+          renameBtn.textContent = "Rename";
+          renameBtn.onclick = (e) => {
+            e.stopPropagation();
+            openRenameModal(staff.id, staff.name);
+          };
           actions.appendChild(renameBtn);
 
           const rateBtn = document.createElement("button");
           rateBtn.className = "btn cyan";
           rateBtn.textContent = "Rate";
-          rateBtn.onclick = () => openStaffRateModal(staff.id, staff);
+          rateBtn.onclick = (e) => {
+            e.stopPropagation();
+            openStaffRateModal(staff.id, staff);
+          };
           actions.appendChild(rateBtn);
+
+          const deleteStaffBtn = document.createElement("button");
+          deleteStaffBtn.className = "btn red";
+          deleteStaffBtn.textContent = "Delete";
+          deleteStaffBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteStaffRow(staff.id, staff.name);
+          };
+          actions.appendChild(deleteStaffBtn);
         }
 
-        div.appendChild(left);
-        div.appendChild(actions);
+        dropdown.appendChild(actions);
+        div.appendChild(dropdown);
         els.staffList.appendChild(div);
       });
     }
@@ -1480,9 +1683,25 @@
       els.statusBox.innerHTML = `
         <div class="big">${escapeHtml(staff.name)} ${getStatusLabel(staff)}</div>
         <div class="small" style="margin-top:8px;">Latest clock in: ${open ? formatDateTime(open.clock_in) : "-"}</div>
-        <div class="small">Break this session: ${breakFor}</div>
-        <div class="small">Net time this session: ${workingFor}</div>
-        <div class="small">Total net time today: ${formatDuration(calcTodayNetMs(staff))}</div>
+
+        <div class="status-grid">
+          <div class="status-metric">
+            <div class="label">Break</div>
+            <div class="value">${breakFor}</div>
+          </div>
+          <div class="status-metric">
+            <div class="label">This session</div>
+            <div class="value">${workingFor}</div>
+          </div>
+          <div class="status-metric">
+            <div class="label">Today net</div>
+            <div class="value">${formatDuration(calcTodayNetMs(staff))}</div>
+          </div>
+          <div class="status-metric">
+            <div class="label">Status</div>
+            <div class="value">${isOnBreak(staff) ? "Break" : isWorking(staff) ? "Working" : "Off"}</div>
+          </div>
+        </div>
       `;
     }
 
@@ -1598,9 +1817,7 @@
     function buildWeeklySummary(staff, fromStr, toStr){
       const map = new Map();
 
-      let sessions = getSessionsForStaff(staff.id)
-        .filter(s => !!s.clock_out);
-
+      let sessions = getSessionsForStaff(staff.id).filter(s => !!s.clock_out);
       sessions = filterSessionsByDateRange(sessions, fromStr, toStr);
 
       for(const s of sessions){
@@ -1834,6 +2051,38 @@
       }
     }
 
+    async function deleteStaffRow(staffId, staffName){
+      if(!requireAdmin()) return;
+
+      const open = findOpenSession(staffId);
+      if(open){
+        return alert("This staff member is currently clocked in. Please clock out first before deleting.");
+      }
+
+      const confirmDelete = confirm(
+        `Delete staff "${staffName}"?\n\nExisting work history will be kept, but this staff member will be removed from the active staff list.`
+      );
+
+      if(!confirmDelete) return;
+
+      try{
+        setSyncInfo("Deleting staff...");
+
+        await deleteDoc(doc(db, "staff", staffId));
+
+        if(String(state.selectedStaffId) === String(staffId)){
+          state.selectedStaffId = null;
+        }
+
+        await loadAllData();
+        alert("Staff deleted");
+
+      }catch(e){
+        console.error(e);
+        alert("Failed to delete staff: " + (e.message || e));
+      }
+    }
+
     async function clockIn(){
       const staff = getSelectedStaff();
       if(!staff) return alert("Please select staff");
@@ -1962,6 +2211,7 @@
       els.adminId.value = "";
       els.adminPassword.value = "";
       els.adminModal.classList.add("show");
+      setTimeout(() => els.adminId.focus(), 120);
     }
 
     function closeAdminModal(){
@@ -2132,8 +2382,12 @@
       els.exportModal.classList.remove("show");
     }
 
-    function downloadCsv(){
+    function downloadXlsx(){
       if(!requireAdmin()) return;
+
+      if(!window.XLSX){
+        return alert("XLSX library has not loaded yet. Please refresh and try again.");
+      }
 
       const staff = getSelectedStaff();
       if(!staff) return alert("Please select staff");
@@ -2163,11 +2417,11 @@
         [
           "Name",
           "Date",
-          "Clock in",
-          "Clock out",
+          "Clock In",
+          "Clock Out",
           "Break",
-          "Net hours",
-          "Pay rate",
+          "Net Hours",
+          "Pay Rate",
           "Multiplier",
           "Pay"
         ]
@@ -2175,6 +2429,7 @@
 
       sessions.forEach(s => {
         const calc = calculateSessionPay(s);
+
         rows.push([
           s.staff_name || "",
           formatDateOnly(s.clock_in),
@@ -2182,27 +2437,53 @@
           formatTimeOnly(s.clock_out),
           formatDuration(minutesToMs(Number(s.break_minutes || 0))),
           formatDuration(calcSessionNetMs(s)),
-          money(s.pay_rate),
-          calc.multiplier.toFixed(2),
-          money(calc.pay)
+          Number(s.pay_rate || 0),
+          Number(calc.multiplier.toFixed(2)),
+          Number(calc.pay.toFixed(2))
         ]);
       });
 
-      const csv = rows.map(row =>
-        row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")
-      ).join("\r\n");
+      const totalPay = sessions.reduce((sum, s) => sum + calculateSessionPay(s).pay, 0);
+      const totalNetMs = sessions.reduce((sum, s) => sum + calcSessionNetMs(s), 0);
 
-      const BOM = "\uFEFF";
-      const blob = new Blob([BOM + csv], { type:"text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
+      rows.push([]);
+      rows.push([
+        "TOTAL",
+        "",
+        "",
+        "",
+        "",
+        formatDuration(totalNetMs),
+        "",
+        "",
+        Number(totalPay.toFixed(2))
+      ]);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Payroll_${staff.name}_${fromDate}_to_${toDate}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const worksheet = window.XLSX.utils.aoa_to_sheet(rows);
+
+      worksheet["!cols"] = [
+        { wch: 20 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 12 }
+      ];
+
+      const workbook = window.XLSX.utils.book_new();
+      window.XLSX.utils.book_append_sheet(workbook, worksheet, "Payroll");
+
+      const safeName = String(staff.name || "Staff")
+        .replace(/[\\/:*?"<>|]/g, "")
+        .replace(/\s+/g, "_");
+
+      window.XLSX.writeFile(
+        workbook,
+        `Payroll_${safeName}_${fromDate}_to_${toDate}.xlsx`
+      );
 
       closeExportModal();
     }
@@ -2219,8 +2500,8 @@
     els.startBreakBtn.addEventListener("click", startBreak);
     els.resumeBreakBtn.addEventListener("click", resumeBreak);
 
-    els.exportCsvBtn.addEventListener("click", openExportModal);
-    els.generateExportBtn.addEventListener("click", downloadCsv);
+    els.exportXlsxBtn.addEventListener("click", openExportModal);
+    els.generateExportBtn.addEventListener("click", downloadXlsx);
     els.closeExportBtn.addEventListener("click", closeExportModal);
 
     els.calcDailyBtn.addEventListener("click", renderDailySummary);
