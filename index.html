@@ -101,14 +101,8 @@
       gap:10px;
     }
 
-    .row3{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
-    }
-
     @media (max-width:760px){
-      .row,.row3{grid-template-columns:1fr}
+      .row{grid-template-columns:1fr}
     }
 
     .toolbar{
@@ -405,15 +399,6 @@
       font-weight:800;
     }
 
-    .link-box{
-      margin-top:12px;
-      padding:12px;
-      border-radius:12px;
-      background:#0b1220;
-      border:1px solid var(--border);
-      word-break:break-all;
-    }
-
     .flag-box{
       display:flex;
       gap:10px;
@@ -437,27 +422,6 @@
 
     .rate-on{color:var(--green-text);font-weight:900}
     .rate-off{color:var(--red-text);font-weight:900}
-
-    .onoff{
-      display:inline-block;
-      margin-top:4px;
-      font-size:12px;
-      font-weight:900;
-    }
-
-    .onoff.on{color:var(--green-text)}
-    .onoff.off{color:var(--red-text)}
-
-    .danger-note{
-      padding:12px;
-      border-radius:14px;
-      background:rgba(239,68,68,.1);
-      border:1px solid rgba(239,68,68,.28);
-      color:#fecaca;
-      font-size:13px;
-      line-height:1.5;
-      margin-top:12px;
-    }
 
     @media (max-width:600px){
       .staff-item{
@@ -518,10 +482,6 @@
                 <input type="checkbox" id="publicHolidayApplyAll" />
                 <label for="publicHolidayApplyAll">PH ทุกคน</label>
               </div>
-            </div>
-
-            <div class="danger-note">
-              เวอร์ชันนี้ใช้ Admin PIN ในหน้าเว็บ เหมาะสำหรับเริ่มต้น/ใช้งานส่วนตัว ถ้าจะให้พนักงานใช้จริงควรเปลี่ยนเป็น Firebase Auth + Rules
             </div>
           </div>
 
@@ -676,7 +636,6 @@
     </div>
   </div>
 
-  <!-- Admin Login Modal -->
   <div class="modal" id="adminModal">
     <div class="modal-card">
       <h3>Admin Login</h3>
@@ -694,7 +653,6 @@
     </div>
   </div>
 
-  <!-- Rename Modal -->
   <div class="modal" id="renameModal">
     <div class="modal-card">
       <h3>เปลี่ยนชื่อพนักงาน</h3>
@@ -709,7 +667,6 @@
     </div>
   </div>
 
-  <!-- Staff Rate Modal -->
   <div class="modal" id="staffRateModal">
     <div class="modal-card">
       <h3>ตั้งค่าเรทของพนักงาน</h3>
@@ -735,7 +692,6 @@
     </div>
   </div>
 
-  <!-- Edit Session Modal -->
   <div class="modal" id="editModal">
     <div class="modal-card">
       <h3>แก้ไขเวลาทำงาน</h3>
@@ -766,7 +722,6 @@
     </div>
   </div>
 
-  <!-- Export Modal -->
   <div class="modal" id="exportModal">
     <div class="modal-card">
       <h3>Export CSV</h3>
@@ -943,17 +898,6 @@
       if(value instanceof Date) return value;
       if(value && typeof value.toDate === "function") return value.toDate();
       return new Date(value);
-    }
-
-    function toIso(value){
-      const d = toDateSafe(value);
-      if(!d || isNaN(d)) return "";
-      return d.toISOString();
-    }
-
-    function dateToTimestamp(dateValue){
-      const d = new Date(dateValue);
-      return Timestamp.fromDate(d);
     }
 
     function nowTimestamp(){
@@ -2139,12 +2083,12 @@
 
       const rows = [
         [
-          "ชื่อ",
-          "วันที่",
+          "Name",
+          "Date",
           "Clock in",
           "Clock out",
-          "พักรวม",
-          "สุทธิ",
+          "Break",
+          "Net hours",
           "Pay rate",
           "Multiplier",
           "Pay"
@@ -2168,9 +2112,10 @@
 
       const csv = rows.map(row =>
         row.map(cell => `"${String(cell).replaceAll('"','""')}"`).join(",")
-      ).join("\n");
+      ).join("\r\n");
 
-      const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+      const BOM = "\uFEFF";
+      const blob = new Blob([BOM + csv], { type:"text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
 
       const a = document.createElement("a");
