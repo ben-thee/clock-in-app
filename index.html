@@ -1,28 +1,32 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Clock In App Firebase</title>
+  <title>Clock In App</title>
 
   <style>
     :root{
-      --bg:#0f172a;
-      --card:#1f2937;
-      --muted:#94a3b8;
-      --text:#f8fafc;
-      --accent:#22c55e;
-      --accent2:#3b82f6;
-      --danger:#ef4444;
-      --warn:#f59e0b;
-      --purple:#8b5cf6;
-      --cyan:#06b6d4;
-      --border:#334155;
-      --selected-bg: rgba(239,68,68,.16);
-      --selected-border:#f87171;
-      --red-text:#f87171;
-      --green-text:#4ade80;
-      --orange-text:#fb923c;
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --card2:#f8fafc;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#e2e8f0;
+      --blue:#2563eb;
+      --blue2:#eff6ff;
+      --green:#16a34a;
+      --green2:#ecfdf5;
+      --red:#dc2626;
+      --red2:#fef2f2;
+      --orange:#ea580c;
+      --orange2:#fff7ed;
+      --purple:#7c3aed;
+      --purple2:#f5f3ff;
+      --cyan:#0891b2;
+      --cyan2:#ecfeff;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --radius:22px;
     }
 
     *{box-sizing:border-box}
@@ -30,7 +34,9 @@
     body{
       margin:0;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:linear-gradient(180deg,#0b1220,#111827 40%,#0f172a);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.10), transparent 28%),
+        linear-gradient(180deg,#f8fafc,#eef4fb 48%,#f8fafc);
       color:var(--text);
       -webkit-tap-highlight-color:transparent;
     }
@@ -38,13 +44,66 @@
     .wrap{
       max-width:1280px;
       margin:0 auto;
-      padding:16px;
+      padding:18px;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      margin-bottom:18px;
+      background:rgba(255,255,255,.82);
+      backdrop-filter:blur(14px);
+      border:1px solid var(--border);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      position:sticky;
+      top:10px;
+      z-index:20;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius:16px;
+      background:linear-gradient(135deg,#2563eb,#06b6d4);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#fff;
+      font-weight:900;
+      box-shadow:0 10px 20px rgba(37,99,235,.22);
+      flex:0 0 auto;
     }
 
     h1{
-      margin:0 0 8px;
-      font-size:26px;
-      line-height:1.2;
+      margin:0;
+      font-size:22px;
+      line-height:1.15;
+      letter-spacing:-.02em;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:3px;
+    }
+
+    .admin-controls{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
     .grid{
@@ -53,46 +112,55 @@
       gap:18px;
     }
 
-    @media (max-width:1050px){
+    @media(max-width:1050px){
       .grid{grid-template-columns:1fr}
       .wrap{padding:12px}
-      h1{font-size:24px}
+      .topbar{top:8px}
     }
 
     .card{
-      background:rgba(31,41,55,.92);
+      background:rgba(255,255,255,.94);
       border:1px solid var(--border);
-      border-radius:18px;
-      padding:16px;
+      border-radius:var(--radius);
+      padding:18px;
       margin-bottom:18px;
-      box-shadow:0 10px 30px rgba(0,0,0,.25);
+      box-shadow:var(--shadow);
     }
 
     .card h2{
       margin:0 0 14px;
       font-size:18px;
+      letter-spacing:-.01em;
     }
 
     label{
       display:block;
+      color:#334155;
       font-size:13px;
-      color:#cbd5e1;
+      font-weight:700;
       margin:12px 0 6px;
     }
 
     input,select,button{
       width:100%;
-      border-radius:12px;
+      border-radius:16px;
       border:1px solid var(--border);
-      background:#0b1220;
+      background:#fff;
       color:var(--text);
-      padding:12px 14px;
+      padding:13px 14px;
       font-size:15px;
+      outline:none;
+    }
+
+    input:focus,select:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.10);
     }
 
     input[type="checkbox"]{
       width:auto;
       transform:scale(1.15);
+      accent-color:var(--blue);
     }
 
     .row{
@@ -101,7 +169,7 @@
       gap:10px;
     }
 
-    @media (max-width:760px){
+    @media(max-width:760px){
       .row{grid-template-columns:1fr}
     }
 
@@ -118,23 +186,21 @@
 
     .btn{
       cursor:pointer;
-      font-weight:800;
+      font-weight:900;
       border:none;
       user-select:none;
+      transition:.15s ease;
     }
 
-    .btn:active{
-      transform:scale(.98);
-    }
-
-    .btn.green{background:#22c55e;color:#052e16}
-    .btn.blue{background:#3b82f6;color:#fff}
-    .btn.red{background:#ef4444;color:#fff}
-    .btn.gray{background:#334155;color:#fff}
+    .btn:active{transform:scale(.98)}
+    .btn.blue{background:var(--blue);color:#fff}
+    .btn.green{background:var(--green);color:#fff}
+    .btn.red{background:var(--red);color:#fff}
+    .btn.gray{background:#e2e8f0;color:#0f172a}
+    .btn.dark{background:#0f172a;color:#fff}
     .btn.warn{background:#f59e0b;color:#1f1300}
-    .btn.purple{background:#8b5cf6;color:#fff}
-    .btn.cyan{background:#06b6d4;color:#06232a}
-    .btn.dark{background:#111827;color:#fff;border:1px solid var(--border)}
+    .btn.purple{background:var(--purple);color:#fff}
+    .btn.cyan{background:var(--cyan);color:#fff}
 
     .small{
       font-size:12px;
@@ -142,57 +208,35 @@
       line-height:1.45;
     }
 
-    .status{
-      padding:12px 14px;
-      border-radius:14px;
-      background:#0b1220;
-      border:1px solid var(--border);
+    .sync-box{
       margin-top:12px;
-    }
-
-    .status .big{
-      font-size:17px;
-      font-weight:900;
-      margin-bottom:6px;
+      padding:10px 12px;
+      border-radius:16px;
+      background:var(--card2);
+      border:1px solid var(--border);
+      color:var(--muted);
+      font-size:13px;
     }
 
     .pill{
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
       padding:5px 10px;
       border-radius:999px;
       font-size:12px;
-      font-weight:800;
-      margin-left:6px;
+      font-weight:900;
       white-space:nowrap;
     }
 
-    .pill.working{
-      background:rgba(34,197,94,.16);
-      color:#86efac;
-      border:1px solid rgba(34,197,94,.35);
-    }
-
-    .pill.break{
-      background:rgba(245,158,11,.16);
-      color:#fde68a;
-      border:1px solid rgba(245,158,11,.35);
-    }
-
-    .pill.off{
-      background:rgba(148,163,184,.12);
-      color:#cbd5e1;
-      border:1px solid rgba(148,163,184,.2);
-    }
-
-    .pill.admin{
-      background:rgba(59,130,246,.16);
-      color:#bfdbfe;
-      border:1px solid rgba(59,130,246,.35);
-    }
+    .pill.working{background:var(--green2);color:var(--green);border:1px solid #bbf7d0}
+    .pill.break{background:var(--orange2);color:var(--orange);border:1px solid #fed7aa}
+    .pill.off{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+    .pill.admin{background:var(--blue2);color:var(--blue);border:1px solid #bfdbfe}
 
     .staff-list{
       display:grid;
-      gap:8px;
+      gap:10px;
       margin-top:14px;
       max-height:460px;
       overflow:auto;
@@ -200,10 +244,10 @@
     }
 
     .staff-item{
-      padding:10px 12px;
-      border-radius:14px;
+      padding:12px;
+      border-radius:18px;
       border:1px solid var(--border);
-      background:#0b1220;
+      background:#fff;
       display:flex;
       justify-content:space-between;
       gap:8px;
@@ -212,9 +256,9 @@
     }
 
     .staff-item.selected{
-      background:var(--selected-bg);
-      border-color:var(--selected-border);
-      box-shadow:0 0 0 1px rgba(248,113,113,.25) inset;
+      background:var(--blue2);
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(37,99,235,.08);
     }
 
     .staff-name{
@@ -223,13 +267,14 @@
       overflow:hidden;
       text-overflow:ellipsis;
       max-width:170px;
+      letter-spacing:-.01em;
     }
 
     .staff-meta{
       color:var(--muted);
       font-size:12px;
-      margin-top:4px;
-      line-height:1.45;
+      margin-top:5px;
+      line-height:1.5;
     }
 
     .staff-actions{
@@ -246,15 +291,99 @@
       min-width:54px;
       padding:8px 10px;
       font-size:12px;
-      border-radius:10px;
+      border-radius:12px;
       white-space:nowrap;
+    }
+
+    .selected-banner{
+      margin-top:10px;
+      padding:12px 14px;
+      border-radius:16px;
+      background:var(--blue2);
+      border:1px solid #bfdbfe;
+      font-weight:900;
+      color:#1d4ed8;
+    }
+
+    .clock{
+      font-size:24px;
+      font-weight:950;
+      letter-spacing:-.02em;
+      margin:4px 0 2px;
+      color:#0f172a;
+    }
+
+    .status{
+      padding:14px;
+      border-radius:18px;
+      background:#f8fafc;
+      border:1px solid var(--border);
+      margin-top:14px;
+    }
+
+    .status .big{
+      font-size:17px;
+      font-weight:950;
+      margin-bottom:8px;
+    }
+
+    .summary-box{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      background:var(--green2);
+      border:1px solid #bbf7d0;
+    }
+
+    .summary-box h3{
+      margin:0 0 10px;
+      color:#166534;
+      font-size:17px;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    @media(max-width:1000px){
+      .summary-grid{grid-template-columns:1fr 1fr}
+    }
+
+    @media(max-width:600px){
+      .summary-grid{grid-template-columns:1fr}
+    }
+
+    .metric{
+      background:#fff;
+      border:1px solid var(--border);
+      padding:12px;
+      border-radius:18px;
+    }
+
+    .metric .label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .metric .value{
+      font-size:18px;
+      font-weight:950;
+      margin-top:6px;
     }
 
     table{
       width:100%;
-      border-collapse:collapse;
+      border-collapse:separate;
+      border-spacing:0;
       margin-top:12px;
       font-size:14px;
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
     }
 
     th,td{
@@ -266,56 +395,13 @@
     }
 
     th{
-      color:#cbd5e1;
+      color:#334155;
       font-size:13px;
-    }
-
-    .clock{
-      font-size:23px;
+      background:#f8fafc;
       font-weight:900;
-      letter-spacing:.4px;
-      margin:6px 0 0;
     }
 
-    .summary-box{
-      margin-top:14px;
-      padding:14px;
-      border-radius:16px;
-      background:rgba(34,197,94,.08);
-      border:1px solid rgba(34,197,94,.28);
-    }
-
-    .summary-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-    }
-
-    @media (max-width:1000px){
-      .summary-grid{grid-template-columns:1fr 1fr}
-    }
-
-    @media (max-width:600px){
-      .summary-grid{grid-template-columns:1fr}
-    }
-
-    .metric{
-      background:#0b1220;
-      border:1px solid var(--border);
-      padding:12px;
-      border-radius:14px;
-    }
-
-    .metric .label{
-      font-size:12px;
-      color:var(--muted);
-    }
-
-    .metric .value{
-      font-size:18px;
-      font-weight:900;
-      margin-top:6px;
-    }
+    tr:last-child td{border-bottom:none}
 
     .action-col{
       display:flex;
@@ -325,11 +411,11 @@
 
     .mini-btn{
       padding:8px 10px;
-      border-radius:10px;
+      border-radius:12px;
       border:none;
       cursor:pointer;
       font-size:12px;
-      font-weight:800;
+      font-weight:900;
       width:auto;
     }
 
@@ -339,12 +425,13 @@
     .modal{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.65);
+      background:rgba(15,23,42,.45);
       display:none;
       align-items:center;
       justify-content:center;
       padding:20px;
       z-index:9999;
+      backdrop-filter:blur(8px);
     }
 
     .modal.show{display:flex}
@@ -353,50 +440,17 @@
       width:min(820px,100%);
       max-height:90vh;
       overflow:auto;
-      background:#111827;
+      background:#fff;
       border:1px solid var(--border);
-      border-radius:18px;
-      padding:18px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      border-radius:24px;
+      padding:20px;
+      box-shadow:0 24px 60px rgba(15,23,42,.20);
     }
 
     .modal-card h3{
       margin:0 0 12px;
-    }
-
-    .sync-box{
-      margin-top:12px;
-      color:#cbd5e1;
-      font-size:13px;
-    }
-
-    .admin-bar{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-bottom:16px;
-      background:rgba(59,130,246,.08);
-      border:1px solid rgba(59,130,246,.25);
-      padding:12px 14px;
-      border-radius:14px;
-    }
-
-    .admin-bar .grow{flex:1}
-
-    .hidden{display:none !important}
-
-    .red-text{color:var(--red-text);font-weight:900}
-    .green-text{color:var(--green-text);font-weight:900}
-    .orange-text{color:var(--orange-text);font-weight:900}
-
-    .selected-banner{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      background:var(--selected-bg);
-      border:1px solid var(--selected-border);
-      font-weight:800;
+      font-size:20px;
+      letter-spacing:-.02em;
     }
 
     .flag-box{
@@ -410,36 +464,56 @@
       display:flex;
       align-items:center;
       gap:8px;
-      padding:8px 10px;
-      background:#0b1220;
+      padding:10px 12px;
+      background:#f8fafc;
       border:1px solid var(--border);
-      border-radius:12px;
+      border-radius:16px;
     }
 
-    .flag-item label{
-      margin:0;
-    }
+    .flag-item label{margin:0}
 
-    .rate-on{color:var(--green-text);font-weight:900}
-    .rate-off{color:var(--red-text);font-weight:900}
+    .rate-on{color:var(--green);font-weight:950}
+    .rate-off{color:var(--red);font-weight:950}
+    .red-text{color:var(--red);font-weight:950}
+    .green-text{color:var(--green);font-weight:950}
+    .orange-text{color:var(--orange);font-weight:950}
+    .hidden{display:none!important}
 
-    @media (max-width:600px){
-      .staff-item{
-        padding:9px 10px;
+    @media(max-width:600px){
+      .topbar{
+        align-items:flex-start;
+        flex-direction:column;
       }
+
+      .admin-controls{
+        width:100%;
+        justify-content:flex-start;
+      }
+
+      .admin-controls button{
+        flex:1;
+      }
+
+      .staff-item{
+        padding:10px;
+      }
+
       .staff-actions{
         max-width:150px;
       }
+
       .staff-actions button{
         min-width:48px;
         padding:8px 9px;
       }
+
       th,td{
         padding:10px 8px;
         font-size:13px;
       }
+
       .clock{
-        font-size:20px;
+        font-size:21px;
       }
     }
   </style>
@@ -447,66 +521,70 @@
 
 <body>
   <div class="wrap">
-    <div class="admin-bar">
-      <div class="grow">
-        <strong>Admin</strong>
-        <span id="adminBadge" class="pill off"></span>
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">⏱</div>
+        <div>
+          <h1>Clock In / Clock Out</h1>
+          <div class="subtitle">Firebase Firestore Database</div>
+        </div>
       </div>
-      <button class="btn dark" id="openAdminBtn" style="width:auto;padding:10px 16px;">Admin Login</button>
-      <button class="btn red" id="logoutAdminBtn" style="width:auto;padding:10px 16px;display:none;">Logout Admin</button>
-    </div>
 
-    <h1>Clock In / Clock Out App</h1>
-    <div class="small">Firebase Firestore Database</div>
+      <div class="admin-controls">
+        <span id="adminBadge" class="pill off"></span>
+        <button class="btn dark" id="openAdminBtn" style="width:auto;padding:10px 16px;">Admin Login</button>
+        <button class="btn red" id="logoutAdminBtn" style="width:auto;padding:10px 16px;display:none;">Logout</button>
+      </div>
+    </div>
 
     <div class="grid">
       <div>
         <div class="card">
-          <h2>จัดการพนักงาน</h2>
+          <h2>Staff</h2>
 
           <div id="adminOnlyAddSection" class="hidden">
-            <label for="staffName">ชื่อพนักงาน</label>
-            <input id="staffName" placeholder="เช่น Ben" />
+            <label for="staffName">Staff name</label>
+            <input id="staffName" placeholder="Example: Ben" />
 
             <div class="row" style="margin-top:12px;">
-              <button class="btn green" id="addStaffBtn">เพิ่มพนักงาน</button>
-              <button class="btn gray" id="refreshBtn">รีเฟรชข้อมูล</button>
+              <button class="btn green" id="addStaffBtn">Add Staff</button>
+              <button class="btn gray" id="refreshBtn">Refresh</button>
             </div>
 
             <div class="row" style="margin-top:12px;">
               <div class="flag-item">
                 <input type="checkbox" id="weekendApplyAll" />
-                <label for="weekendApplyAll">Weekend ทุกคน</label>
+                <label for="weekendApplyAll">Weekend for all</label>
               </div>
               <div class="flag-item">
                 <input type="checkbox" id="publicHolidayApplyAll" />
-                <label for="publicHolidayApplyAll">PH ทุกคน</label>
+                <label for="publicHolidayApplyAll">Public holiday for all</label>
               </div>
             </div>
           </div>
 
           <div id="normalRefreshSection">
-            <button class="btn gray" id="refreshBtn2">รีเฟรชข้อมูล</button>
+            <button class="btn gray" id="refreshBtn2">Refresh</button>
           </div>
 
-          <div class="sync-box" id="syncInfo">สถานะ: กำลังโหลด...</div>
+          <div class="sync-box" id="syncInfo">Status: Loading...</div>
           <div class="staff-list" id="staffList"></div>
         </div>
       </div>
 
       <div>
         <div class="card">
-          <h2>ลงเวลา</h2>
+          <h2>Time Clock</h2>
           <div class="clock" id="liveClock">--:--:--</div>
 
-          <label for="staffSelect">เลือกพนักงาน</label>
+          <label for="staffSelect">Select staff</label>
           <select id="staffSelect"></select>
 
-          <div class="selected-banner" id="selectedStaffBanner">กำลังเลือก: -</div>
+          <div class="selected-banner" id="selectedStaffBanner">Selected: -</div>
 
           <div class="toolbar">
-            <button class="btn blue" id="clockInBtn">Clock in</button>
-            <button class="btn red" id="clockOutBtn">Clock out</button>
+            <button class="btn blue" id="clockInBtn">Clock In</button>
+            <button class="btn red" id="clockOutBtn">Clock Out</button>
             <button class="btn warn" id="startBreakBtn">Start Break</button>
             <button class="btn purple" id="resumeBreakBtn">Resume Work</button>
           </div>
@@ -516,27 +594,27 @@
           </div>
 
           <div class="status" id="statusBox">
-            <div class="big">ยังไม่มีพนักงานถูกเลือก</div>
-            <div class="small">เพิ่มพนักงานก่อน แล้วเลือกพนักงานเพื่อเริ่มลงเวลา</div>
+            <div class="big">No staff selected</div>
+            <div class="small">Add staff first, then select a staff member to start.</div>
           </div>
 
           <div class="summary-box" id="latestSummary" style="display:none;">
-            <h3 style="margin:0 0 10px;color:#bbf7d0;font-size:17px;">สรุปหลัง Clock out</h3>
+            <h3>Clock Out Summary</h3>
             <div class="summary-grid">
               <div class="metric">
-                <div class="label">พนักงาน</div>
+                <div class="label">Staff</div>
                 <div class="value" id="sumName">-</div>
               </div>
               <div class="metric">
-                <div class="label">เวลาทั้งหมด</div>
+                <div class="label">Gross time</div>
                 <div class="value" id="sumGross">-</div>
               </div>
               <div class="metric">
-                <div class="label">พักรวม</div>
+                <div class="label">Break</div>
                 <div class="value" id="sumBreak">-</div>
               </div>
               <div class="metric">
-                <div class="label">สุทธิ</div>
+                <div class="label">Net time</div>
                 <div class="value" id="sumNet">-</div>
               </div>
             </div>
@@ -544,51 +622,51 @@
         </div>
 
         <div class="card hidden" id="adminSummaryCard">
-          <h2>สรุปเงิน</h2>
+          <h2>Payroll Summary</h2>
 
           <div class="row">
             <div>
-              <label for="dailySummaryDate">สรุปรายวัน</label>
+              <label for="dailySummaryDate">Daily summary</label>
               <input type="date" id="dailySummaryDate" />
             </div>
             <div style="display:flex;align-items:flex-end;">
-              <button class="btn cyan" id="calcDailyBtn">คำนวณรายวัน</button>
+              <button class="btn cyan" id="calcDailyBtn">Calculate Daily</button>
             </div>
           </div>
 
           <div class="summary-grid" style="margin-top:12px;">
             <div class="metric">
-              <div class="label">ชั่วโมงรวมทั้งวัน</div>
+              <div class="label">Total hours</div>
               <div class="value" id="dailyHoursValue">0.00</div>
             </div>
             <div class="metric">
-              <div class="label">เงินรวมทั้งวัน</div>
+              <div class="label">Total pay</div>
               <div class="value" id="dailyPayValue">0.00</div>
             </div>
           </div>
 
           <div class="row" style="margin-top:16px;">
             <div>
-              <label for="weeklyFrom">สรุปช่วงวันที่เริ่ม</label>
+              <label for="weeklyFrom">From</label>
               <input type="date" id="weeklyFrom" />
             </div>
             <div>
-              <label for="weeklyTo">ถึงวันที่</label>
+              <label for="weeklyTo">To</label>
               <input type="date" id="weeklyTo" />
             </div>
           </div>
 
           <div class="toolbar">
-            <button class="btn purple" id="calcWeeklyBtn">คำนวณรายสัปดาห์</button>
+            <button class="btn purple" id="calcWeeklyBtn">Calculate Period</button>
           </div>
 
           <div class="summary-grid" style="margin-top:12px;">
             <div class="metric">
-              <div class="label">ชั่วโมงรวมทั้งช่วง</div>
+              <div class="label">Total period hours</div>
               <div class="value" id="weeklyHoursValue">0.00</div>
             </div>
             <div class="metric">
-              <div class="label">เงินรวมทั้งช่วง</div>
+              <div class="label">Total period pay</div>
               <div class="value" id="weeklyPayValue">0.00</div>
             </div>
           </div>
@@ -597,12 +675,12 @@
             <table>
               <thead>
                 <tr>
-                  <th>สัปดาห์</th>
-                  <th>จำนวนวัน</th>
-                  <th>รวมเวลา</th>
-                  <th>พักรวม</th>
-                  <th>สุทธิรวม</th>
-                  <th>เงินรวม</th>
+                  <th>Week</th>
+                  <th>Work days</th>
+                  <th>Gross time</th>
+                  <th>Break</th>
+                  <th>Net time</th>
+                  <th>Total pay</th>
                 </tr>
               </thead>
               <tbody id="weeklyTable"></tbody>
@@ -611,21 +689,21 @@
         </div>
 
         <div class="card hidden" id="historyCard">
-          <h2>ประวัติการทำงาน</h2>
-          <div class="small">แสดง 10 รายการล่าสุด — ถ้าพักเกิน 30 นาทีจะเป็นสีส้ม / ถ้าทำงานเกิน 9 ชม. จะเป็นสีแดง</div>
+          <h2>Work History</h2>
+          <div class="small">Showing the latest 10 completed sessions. Break over 30 minutes is orange. Net time over 9 hours is red.</div>
           <div style="overflow:auto;">
             <table>
               <thead>
                 <tr>
-                  <th>วันที่</th>
+                  <th>Date</th>
                   <th>Clock in</th>
                   <th>Clock out</th>
-                  <th>พักรวม</th>
-                  <th>สุทธิ</th>
-                  <th>Pay Rate</th>
-                  <th>ตัวคูณ</th>
-                  <th>เงินที่ต้องจ่าย</th>
-                  <th>จัดการ</th>
+                  <th>Break</th>
+                  <th>Net</th>
+                  <th>Pay rate</th>
+                  <th>Multiplier</th>
+                  <th>Pay</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="historyTable"></tbody>
@@ -641,60 +719,60 @@
       <h3>Admin Login</h3>
 
       <label for="adminId">ID</label>
-      <input id="adminId" placeholder="กรอก ID" />
+      <input id="adminId" placeholder="Enter admin ID" />
 
       <label for="adminPassword">Password</label>
-      <input id="adminPassword" type="password" placeholder="กรอก Password" />
+      <input id="adminPassword" type="password" placeholder="Enter password" />
 
       <div class="row" style="margin-top:16px;">
-        <button class="btn blue" id="loginAdminBtn">เข้าสู่ระบบ</button>
-        <button class="btn gray" id="closeAdminBtn">ยกเลิก</button>
+        <button class="btn blue" id="loginAdminBtn">Login</button>
+        <button class="btn gray" id="closeAdminBtn">Cancel</button>
       </div>
     </div>
   </div>
 
   <div class="modal" id="renameModal">
     <div class="modal-card">
-      <h3>เปลี่ยนชื่อพนักงาน</h3>
+      <h3>Rename Staff</h3>
 
-      <label for="renameStaffInput">ชื่อใหม่</label>
-      <input id="renameStaffInput" placeholder="กรอกชื่อใหม่" />
+      <label for="renameStaffInput">New name</label>
+      <input id="renameStaffInput" placeholder="Enter new name" />
 
       <div class="row" style="margin-top:16px;">
-        <button class="btn green" id="saveRenameBtn">บันทึกชื่อใหม่</button>
-        <button class="btn gray" id="cancelRenameBtn">ยกเลิก</button>
+        <button class="btn green" id="saveRenameBtn">Save Name</button>
+        <button class="btn gray" id="cancelRenameBtn">Cancel</button>
       </div>
     </div>
   </div>
 
   <div class="modal" id="staffRateModal">
     <div class="modal-card">
-      <h3>ตั้งค่าเรทของพนักงาน</h3>
+      <h3>Staff Pay Settings</h3>
 
-      <label for="staffRateInput">Base Pay Rate</label>
-      <input id="staffRateInput" type="number" min="0" step="0.01" placeholder="เช่น 25" />
+      <label for="staffRateInput">Base pay rate</label>
+      <input id="staffRateInput" type="number" min="0" step="0.01" placeholder="Example: 25" />
 
       <div class="flag-box">
         <div class="flag-item">
           <input type="checkbox" id="staffWeekendEnabled" />
-          <label for="staffWeekendEnabled">ใช้ Weekend Rate 1.5x</label>
+          <label for="staffWeekendEnabled">Use weekend rate 1.5x</label>
         </div>
         <div class="flag-item">
           <input type="checkbox" id="staffPublicHolidayEnabled" />
-          <label for="staffPublicHolidayEnabled">ใช้ Public Holiday Rate 1.5x</label>
+          <label for="staffPublicHolidayEnabled">Use public holiday rate 1.5x</label>
         </div>
       </div>
 
       <div class="row" style="margin-top:16px;">
-        <button class="btn green" id="saveStaffRateBtn">บันทึก</button>
-        <button class="btn gray" id="cancelStaffRateBtn">ยกเลิก</button>
+        <button class="btn green" id="saveStaffRateBtn">Save</button>
+        <button class="btn gray" id="cancelStaffRateBtn">Cancel</button>
       </div>
     </div>
   </div>
 
   <div class="modal" id="editModal">
     <div class="modal-card">
-      <h3>แก้ไขเวลาทำงาน</h3>
+      <h3>Edit Work Session</h3>
 
       <label for="editClockIn">Clock in</label>
       <input id="editClockIn" type="datetime-local" />
@@ -702,22 +780,22 @@
       <label for="editClockOut">Clock out</label>
       <input id="editClockOut" type="datetime-local" />
 
-      <label for="editBreakMinutes">เวลาพักรวม นาที</label>
-      <input id="editBreakMinutes" type="number" min="0" placeholder="เช่น 30" />
+      <label for="editBreakMinutes">Break minutes</label>
+      <input id="editBreakMinutes" type="number" min="0" placeholder="Example: 30" />
 
-      <label for="editPayRate">Base Pay Rate</label>
-      <input id="editPayRate" type="number" min="0" step="0.01" placeholder="เช่น 25" />
+      <label for="editPayRate">Base pay rate</label>
+      <input id="editPayRate" type="number" min="0" step="0.01" placeholder="Example: 25" />
 
-      <label for="editManualPublicHoliday">Public Holiday Override</label>
+      <label for="editManualPublicHoliday">Public holiday override</label>
       <select id="editManualPublicHoliday">
         <option value="">Auto</option>
-        <option value="force_on">บังคับให้เป็น Public Holiday</option>
-        <option value="force_off">บังคับไม่ให้เป็น Public Holiday</option>
+        <option value="force_on">Force public holiday</option>
+        <option value="force_off">Force non-public holiday</option>
       </select>
 
       <div class="row" style="margin-top:16px;">
-        <button class="btn green" id="saveEditBtn">บันทึก</button>
-        <button class="btn gray" id="cancelEditBtn">ยกเลิก</button>
+        <button class="btn green" id="saveEditBtn">Save</button>
+        <button class="btn gray" id="cancelEditBtn">Cancel</button>
       </div>
     </div>
   </div>
@@ -728,18 +806,18 @@
 
       <div class="row">
         <div>
-          <label for="exportFrom">วันที่เริ่มต้น</label>
+          <label for="exportFrom">From</label>
           <input type="date" id="exportFrom" />
         </div>
         <div>
-          <label for="exportTo">วันที่สิ้นสุด</label>
+          <label for="exportTo">To</label>
           <input type="date" id="exportTo" />
         </div>
       </div>
 
       <div class="row" style="margin-top:16px;">
         <button class="btn green" id="generateExportBtn">Download CSV</button>
-        <button class="btn gray" id="closeExportBtn">ปิด</button>
+        <button class="btn gray" id="closeExportBtn">Close</button>
       </div>
     </div>
   </div>
@@ -857,7 +935,7 @@
       generateExportBtn: document.getElementById("generateExportBtn"),
       closeExportBtn: document.getElementById("closeExportBtn"),
 
-      syncInfo: document.getElementById("syncInfo"),
+      syncInfo: document.getElementById("syncInfo")
     };
 
     let state = {
@@ -878,7 +956,7 @@
     let isSavingGlobal = false;
 
     function setSyncInfo(text){
-      els.syncInfo.textContent = "สถานะ: " + text;
+      els.syncInfo.textContent = "Status: " + text;
     }
 
     function money(n){
@@ -1196,7 +1274,7 @@
     }
 
     async function loadAllData(){
-      setSyncInfo("กำลังโหลด...");
+      setSyncInfo("Loading...");
 
       try{
         await ensureConfig();
@@ -1233,13 +1311,13 @@
 
         setDefaultDateFilters();
         syncSettingsToUI();
-        setSyncInfo("เชื่อมต่อ Firebase แล้ว");
+        setSyncInfo("Connected to Firebase");
         renderAll();
 
       }catch(err){
         console.error(err);
-        setSyncInfo("เชื่อมต่อไม่สำเร็จ");
-        alert("โหลดข้อมูลไม่สำเร็จ: " + (err.message || err));
+        setSyncInfo("Connection failed");
+        alert("Failed to load data: " + (err.message || err));
       }
     }
 
@@ -1288,7 +1366,7 @@
 
     function renderSelectedBanner(){
       const staff = getSelectedStaff();
-      els.selectedStaffBanner.textContent = `กำลังเลือก: ${staff ? staff.name : "-"}`;
+      els.selectedStaffBanner.textContent = `Selected: ${staff ? staff.name : "-"}`;
     }
 
     function renderStaffList(){
@@ -1297,7 +1375,7 @@
       if(state.staff.length === 0){
         const empty = document.createElement("div");
         empty.className = "small";
-        empty.textContent = "ยังไม่มีพนักงาน";
+        empty.textContent = "No staff yet";
         els.staffList.appendChild(empty);
         return;
       }
@@ -1329,7 +1407,7 @@
 
         const selectBtn = document.createElement("button");
         selectBtn.className = "btn blue";
-        selectBtn.textContent = "เลือก";
+        selectBtn.textContent = "Select";
         selectBtn.onclick = () => {
           state.selectedStaffId = staff.id;
           renderAll();
@@ -1339,13 +1417,13 @@
         if(isAdmin){
           const renameBtn = document.createElement("button");
           renameBtn.className = "btn warn";
-          renameBtn.textContent = "ชื่อ";
+          renameBtn.textContent = "Name";
           renameBtn.onclick = () => openRenameModal(staff.id, staff.name);
           actions.appendChild(renameBtn);
 
           const rateBtn = document.createElement("button");
           rateBtn.className = "btn cyan";
-          rateBtn.textContent = "เรท";
+          rateBtn.textContent = "Rate";
           rateBtn.onclick = () => openStaffRateModal(staff.id, staff);
           actions.appendChild(rateBtn);
         }
@@ -1361,7 +1439,7 @@
 
       if(state.staff.length === 0){
         const opt = document.createElement("option");
-        opt.textContent = "ยังไม่มีพนักงาน";
+        opt.textContent = "No staff yet";
         opt.value = "";
         els.staffSelect.appendChild(opt);
         return;
@@ -1381,8 +1459,8 @@
 
       if(!staff){
         els.statusBox.innerHTML = `
-          <div class="big">ยังไม่มีพนักงานถูกเลือก</div>
-          <div class="small">เพิ่มพนักงานก่อน แล้วเลือกพนักงานเพื่อเริ่มลงเวลา</div>
+          <div class="big">No staff selected</div>
+          <div class="small">Add staff first, then select a staff member to start.</div>
         `;
         return;
       }
@@ -1401,10 +1479,10 @@
 
       els.statusBox.innerHTML = `
         <div class="big">${escapeHtml(staff.name)} ${getStatusLabel(staff)}</div>
-        <div class="small" style="margin-top:8px;">Clock in ล่าสุด: ${open ? formatDateTime(open.clock_in) : "-"}</div>
-        <div class="small">เวลาพักสะสมรอบนี้: ${breakFor}</div>
-        <div class="small">เวลาทำงานสุทธิรอบนี้: ${workingFor}</div>
-        <div class="small">รวมสุทธิวันนี้: ${formatDuration(calcTodayNetMs(staff))}</div>
+        <div class="small" style="margin-top:8px;">Latest clock in: ${open ? formatDateTime(open.clock_in) : "-"}</div>
+        <div class="small">Break this session: ${breakFor}</div>
+        <div class="small">Net time this session: ${workingFor}</div>
+        <div class="small">Total net time today: ${formatDuration(calcTodayNetMs(staff))}</div>
       `;
     }
 
@@ -1413,7 +1491,7 @@
       els.historyTable.innerHTML = "";
 
       if(!staff){
-        els.historyTable.innerHTML = `<tr><td colspan="9" class="small">ยังไม่มีข้อมูล</td></tr>`;
+        els.historyTable.innerHTML = `<tr><td colspan="9" class="small">No data</td></tr>`;
         return;
       }
 
@@ -1423,7 +1501,7 @@
         .slice(0,10);
 
       if(sessions.length === 0){
-        els.historyTable.innerHTML = `<tr><td colspan="9" class="small">ยังไม่มีประวัติการทำงาน</td></tr>`;
+        els.historyTable.innerHTML = `<tr><td colspan="9" class="small">No completed work sessions</td></tr>`;
         return;
       }
 
@@ -1569,7 +1647,7 @@
       if(!staff){
         els.weeklyHoursValue.textContent = "0.00";
         els.weeklyPayValue.textContent = "0.00";
-        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">ยังไม่มีข้อมูล</td></tr>`;
+        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">No data</td></tr>`;
         return;
       }
 
@@ -1581,7 +1659,7 @@
       els.weeklyPayValue.textContent = money(totalPay);
 
       if(weeks.length === 0){
-        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">ยังไม่มีสรุปรายสัปดาห์</td></tr>`;
+        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">No period summary</td></tr>`;
         return;
       }
 
@@ -1636,7 +1714,7 @@
       isSavingGlobal = true;
 
       try{
-        setSyncInfo("กำลังบันทึก global...");
+        setSyncInfo("Saving global settings...");
 
         await setDoc(doc(db, "config", "global"), {
           weekend_apply_all: els.weekendApplyAll.checked,
@@ -1648,30 +1726,30 @@
         state.settings.public_holiday_apply_all = els.publicHolidayApplyAll.checked;
 
         renderAll();
-        setSyncInfo("บันทึก global แล้ว");
+        setSyncInfo("Global settings saved");
 
       }catch(e){
         console.error(e);
-        alert("บันทึก global ไม่สำเร็จ: " + (e.message || e));
+        alert("Failed to save global settings: " + (e.message || e));
       }finally{
         isSavingGlobal = false;
       }
     }
 
     async function addStaff(){
-      if(!isAdmin) return alert("เพิ่มพนักงานได้เฉพาะ Admin");
+      if(!isAdmin) return alert("Only admin can add staff");
 
       const name = els.staffName.value.trim();
-      if(!name) return alert("กรุณากรอกชื่อพนักงาน");
+      if(!name) return alert("Please enter a staff name");
 
       const exists = state.staff.some(s =>
         String(s.name).toLowerCase() === name.toLowerCase()
       );
 
-      if(exists) return alert("ชื่อนี้มีอยู่แล้ว");
+      if(exists) return alert("This staff name already exists");
 
       try{
-        setSyncInfo("กำลังเพิ่มพนักงาน...");
+        setSyncInfo("Adding staff...");
 
         const docRef = await addDoc(collection(db, "staff"), {
           name,
@@ -1688,7 +1766,7 @@
 
       }catch(e){
         console.error(e);
-        alert("เพิ่มพนักงานไม่สำเร็จ: " + (e.message || e));
+        alert("Failed to add staff: " + (e.message || e));
       }
     }
 
@@ -1697,14 +1775,14 @@
       if(!renamingStaffId) return;
 
       const newName = els.renameStaffInput.value.trim();
-      if(!newName) return alert("กรุณากรอกชื่อใหม่");
+      if(!newName) return alert("Please enter a new name");
 
       const duplicate = state.staff.some(s =>
         String(s.id) !== String(renamingStaffId) &&
         String(s.name).toLowerCase() === newName.toLowerCase()
       );
 
-      if(duplicate) return alert("ชื่อนี้มีอยู่แล้ว");
+      if(duplicate) return alert("This staff name already exists");
 
       try{
         await updateDoc(doc(db, "staff", renamingStaffId), {
@@ -1725,7 +1803,7 @@
 
       }catch(e){
         console.error(e);
-        alert("เปลี่ยนชื่อไม่สำเร็จ: " + (e.message || e));
+        alert("Failed to rename staff: " + (e.message || e));
       }
     }
 
@@ -1736,7 +1814,7 @@
       const rate = Number(els.staffRateInput.value || 0);
 
       if(rate < 0 || isNaN(rate)){
-        return alert("pay rate ไม่ถูกต้อง");
+        return alert("Invalid pay rate");
       }
 
       try{
@@ -1752,19 +1830,19 @@
 
       }catch(e){
         console.error(e);
-        alert("บันทึกเรทไม่สำเร็จ: " + (e.message || e));
+        alert("Failed to save staff rate: " + (e.message || e));
       }
     }
 
     async function clockIn(){
       const staff = getSelectedStaff();
-      if(!staff) return alert("กรุณาเลือกพนักงาน");
+      if(!staff) return alert("Please select staff");
 
       const open = findOpenSession(staff.id);
-      if(open) return alert("พนักงานคนนี้ Clock in อยู่แล้ว");
+      if(open) return alert("This staff member is already clocked in");
 
       try{
-        setSyncInfo("กำลัง Clock in...");
+        setSyncInfo("Clocking in...");
 
         await addDoc(collection(db, "sessions"), {
           staff_id:staff.id,
@@ -1783,17 +1861,17 @@
 
       }catch(e){
         console.error(e);
-        alert("Clock in ไม่สำเร็จ: " + (e.message || e));
+        alert("Clock in failed: " + (e.message || e));
       }
     }
 
     async function startBreak(){
       const staff = getSelectedStaff();
-      if(!staff) return alert("กรุณาเลือกพนักงาน");
+      if(!staff) return alert("Please select staff");
 
       const open = findOpenSession(staff.id);
-      if(!open) return alert("ต้อง Clock in ก่อน");
-      if(open.break_started_at) return alert("ตอนนี้อยู่ในช่วงพักแล้ว");
+      if(!open) return alert("You must clock in first");
+      if(open.break_started_at) return alert("This staff member is already on break");
 
       try{
         await updateDoc(doc(db, "sessions", open.id), {
@@ -1804,17 +1882,17 @@
 
       }catch(e){
         console.error(e);
-        alert("Start break ไม่สำเร็จ: " + (e.message || e));
+        alert("Start break failed: " + (e.message || e));
       }
     }
 
     async function resumeBreak(){
       const staff = getSelectedStaff();
-      if(!staff) return alert("กรุณาเลือกพนักงาน");
+      if(!staff) return alert("Please select staff");
 
       const open = findOpenSession(staff.id);
-      if(!open) return alert("ต้อง Clock in ก่อน");
-      if(!open.break_started_at) return alert("ตอนนี้ไม่ได้อยู่ในช่วงพัก");
+      if(!open) return alert("You must clock in first");
+      if(!open.break_started_at) return alert("This staff member is not on break");
 
       const startedAt = toDateSafe(open.break_started_at);
       const extraMinutes = Math.max(0, Math.round((Date.now() - startedAt.getTime()) / 60000));
@@ -1830,16 +1908,16 @@
 
       }catch(e){
         console.error(e);
-        alert("Resume work ไม่สำเร็จ: " + (e.message || e));
+        alert("Resume work failed: " + (e.message || e));
       }
     }
 
     async function clockOut(){
       const staff = getSelectedStaff();
-      if(!staff) return alert("กรุณาเลือกพนักงาน");
+      if(!staff) return alert("Please select staff");
 
       const open = findOpenSession(staff.id);
-      if(!open) return alert("พนักงานคนนี้ยังไม่ได้ Clock in");
+      if(!open) return alert("This staff member is not clocked in");
 
       let newBreakMinutes = Number(open.break_minutes || 0);
 
@@ -1876,7 +1954,7 @@
 
       }catch(e){
         console.error(e);
-        alert("Clock out ไม่สำเร็จ: " + (e.message || e));
+        alert("Clock out failed: " + (e.message || e));
       }
     }
 
@@ -1899,9 +1977,9 @@
         localStorage.setItem("clockInAdmin", "true");
         closeAdminModal();
         renderAll();
-        alert("เข้าสู่ระบบ Admin สำเร็จ");
+        alert("Admin login successful");
       }else{
-        alert("ID หรือ Password ไม่ถูกต้อง");
+        alert("Invalid ID or password");
       }
     }
 
@@ -1909,12 +1987,12 @@
       isAdmin = false;
       localStorage.removeItem("clockInAdmin");
       renderAll();
-      alert("ออกจากระบบ Admin แล้ว");
+      alert("Admin logged out");
     }
 
     function requireAdmin(){
       if(!isAdmin){
-        alert("ฟังก์ชันนี้ใช้ได้เฉพาะ Admin");
+        alert("Admin only");
         return false;
       }
       return true;
@@ -1962,7 +2040,7 @@
       if(!requireAdmin()) return;
 
       const session = findSessionById(sessionId);
-      if(!session) return alert("ไม่พบรายการเวลา");
+      if(!session) return alert("Work session not found");
 
       editingSessionId = sessionId;
       els.editClockIn.value = toDatetimeLocalValue(session.clock_in);
@@ -1989,28 +2067,28 @@
       const manualPublicHoliday = els.editManualPublicHoliday.value || "";
 
       if(!clockIn || !clockOut){
-        return alert("กรุณากรอกเวลาให้ครบ");
+        return alert("Please complete all time fields");
       }
 
       const inDate = new Date(clockIn);
       const outDate = new Date(clockOut);
 
       if(isNaN(inDate) || isNaN(outDate)){
-        return alert("รูปแบบเวลาไม่ถูกต้อง");
+        return alert("Invalid time format");
       }
 
       if(outDate <= inDate){
-        return alert("Clock out ต้องมากกว่า Clock in");
+        return alert("Clock out must be later than clock in");
       }
 
       const grossMs = outDate - inDate;
 
       if(breakMinutes * 60000 >= grossMs){
-        return alert("เวลาพักต้องน้อยกว่าเวลาทำงานทั้งหมด");
+        return alert("Break time must be less than total work time");
       }
 
       if(payRate < 0 || isNaN(payRate)){
-        return alert("pay rate ไม่ถูกต้อง");
+        return alert("Invalid pay rate");
       }
 
       try{
@@ -2028,20 +2106,20 @@
 
       }catch(e){
         console.error(e);
-        alert("แก้ไขไม่สำเร็จ: " + (e.message || e));
+        alert("Failed to save changes: " + (e.message || e));
       }
     }
 
     async function deleteSessionRow(sessionId){
       if(!requireAdmin()) return;
-      if(!confirm("ลบรายการเวลาทำงานนี้ใช่ไหม?")) return;
+      if(!confirm("Delete this work session?")) return;
 
       try{
         await deleteDoc(doc(db, "sessions", sessionId));
         await loadAllData();
       }catch(e){
         console.error(e);
-        alert("ลบไม่สำเร็จ: " + (e.message || e));
+        alert("Delete failed: " + (e.message || e));
       }
     }
 
@@ -2058,17 +2136,17 @@
       if(!requireAdmin()) return;
 
       const staff = getSelectedStaff();
-      if(!staff) return alert("กรุณาเลือกพนักงาน");
+      if(!staff) return alert("Please select staff");
 
       const fromDate = els.exportFrom.value;
       const toDate = els.exportTo.value;
 
       if(!fromDate || !toDate){
-        return alert("กรุณาเลือกช่วงวันที่");
+        return alert("Please select a date range");
       }
 
       if(new Date(fromDate) > new Date(toDate)){
-        return alert("วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด");
+        return alert("From date must not be later than To date");
       }
 
       const sessions = filterSessionsByDateRange(
@@ -2078,7 +2156,7 @@
       ).sort((a,b) => toDateSafe(a.clock_in) - toDateSafe(b.clock_in));
 
       if(sessions.length === 0){
-        return alert("ไม่มีข้อมูลในช่วงวันที่ที่เลือก");
+        return alert("No data found in this date range");
       }
 
       const rows = [
