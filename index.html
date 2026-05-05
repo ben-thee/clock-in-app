@@ -314,16 +314,17 @@
       font-size:13px;
     }
 
-    .staff-arrow{
-      color:var(--muted);
-      font-size:16px;
-      font-weight:950;
-      padding-top:2px;
+
+    .staff-status{
       flex:0 0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      padding-top:0;
     }
 
-    .staff-item.selected .staff-arrow{
-      transform:rotate(180deg);
+    .staff-main{
+      align-items:center;
     }
 
     .status{
@@ -387,9 +388,9 @@
     }
 
     .staff-item.selected{
-      background:var(--blue2);
-      border-color:#93c5fd;
-      box-shadow:0 0 0 4px rgba(37,99,235,.08);
+      background:var(--red2);
+      border-color:#fca5a5;
+      box-shadow:0 0 0 4px rgba(220,38,38,.08);
     }
 
     .staff-name{
@@ -1589,18 +1590,18 @@
           <div class="staff-name">${escapeHtml(staff.name)}</div>
         `;
 
-        const arrow = document.createElement("div");
-        arrow.className = "staff-arrow";
-        arrow.textContent = "⌄";
+        const status = document.createElement("div");
+        status.className = "staff-status";
+        status.innerHTML = getStatusLabel(staff);
 
         main.appendChild(left);
-        main.appendChild(arrow);
+        main.appendChild(status);
         div.appendChild(main);
 
-        const dropdown = document.createElement("div");
-        dropdown.className = "staff-dropdown";
-
         if(isAdmin){
+          const dropdown = document.createElement("div");
+          dropdown.className = "staff-dropdown";
+
           const actions = document.createElement("div");
           actions.className = "staff-dropdown-actions";
 
