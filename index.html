@@ -314,18 +314,6 @@
       font-size:13px;
     }
 
-    .staff-rate-info{
-      display:grid;
-      gap:6px;
-      margin-bottom:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      background:#f8fafc;
-      border:1px solid var(--border);
-      font-size:13px;
-      color:var(--text);
-    }
-
     .staff-arrow{
       color:var(--muted);
       font-size:16px;
@@ -1583,14 +1571,6 @@
       state.staff.forEach(staff => {
         const selected = String(staff.id) === String(state.selectedStaffId);
 
-        const weekendOn =
-          boolFromValue(state.settings.weekend_apply_all) ||
-          boolFromValue(staff.weekend_enabled);
-
-        const phOn =
-          boolFromValue(state.settings.public_holiday_apply_all) ||
-          boolFromValue(staff.public_holiday_enabled);
-
         const div = document.createElement("div");
         div.className = "staff-item" + (selected ? " selected" : "");
 
@@ -1619,15 +1599,6 @@
 
         const dropdown = document.createElement("div");
         dropdown.className = "staff-dropdown";
-
-        const info = document.createElement("div");
-        info.className = "staff-rate-info";
-        info.innerHTML = `
-          <div><strong>Weekend Rate:</strong> <span class="${weekendOn ? "rate-on" : "rate-off"}">${weekendOn ? "ON" : "OFF"}</span></div>
-          <div><strong>Public Holiday:</strong> <span class="${phOn ? "rate-on" : "rate-off"}">${phOn ? "ON" : "OFF"}</span></div>
-        `;
-
-        dropdown.appendChild(info);
 
         if(isAdmin){
           const actions = document.createElement("div");
@@ -1661,9 +1632,9 @@
           actions.appendChild(deleteStaffBtn);
 
           dropdown.appendChild(actions);
+          div.appendChild(dropdown);
         }
 
-        div.appendChild(dropdown);
         els.staffList.appendChild(div);
       });
     }
