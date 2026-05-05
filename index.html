@@ -296,7 +296,7 @@
       width:100%;
     }
 
-    .staff-item.selected .staff-dropdown{
+    .staff-item.expanded .staff-dropdown{
       display:block;
     }
 
@@ -911,6 +911,35 @@
       }
     }
 
+
+    /* Admin view: compact two-column control panel, staff list on the left */
+    body.admin-page .grid{
+      grid-template-columns:360px 1fr;
+    }
+
+    @media(max-width:760px){
+      body.admin-page .wrap{
+        min-width:720px;
+      }
+
+      body.admin-page .grid{
+        grid-template-columns:minmax(150px, 38vw) minmax(300px, 1fr);
+        gap:8px;
+        align-items:start;
+      }
+
+      body.admin-page .staff-list{
+        max-height:78vh;
+        overflow:auto;
+        -webkit-overflow-scrolling:touch;
+      }
+
+      body.admin-page .topbar{
+        position:relative;
+        top:auto;
+      }
+    }
+
   </style>
 </head>
 
@@ -1340,6 +1369,7 @@
         public_holiday_apply_all: false
       },
       selectedStaffId: null,
+      expandedStaffId: null,
       latestSummary: null
     };
 
@@ -1713,6 +1743,10 @@
           state.selectedStaffId = state.staff[0]?.id || null;
         }
 
+        if(state.expandedStaffId && !state.staff.some(s => String(s.id) === String(state.expandedStaffId))){
+          state.expandedStaffId = null;
+        }
+
         setDefaultDateFilters();
         syncSettingsToUI();
         setSyncInfo("Connected to Firebase");
@@ -1799,12 +1833,29 @@
 
       state.staff.forEach(staff => {
         const selected = String(staff.id) === String(state.selectedStaffId);
+        const expanded = isAdmin && String(staff.id) === String(state.expandedStaffId);
 
         const div = document.createElement("div");
-        div.className = "staff-item" + (selected ? " selected" : "");
+        div.className =
+          "staff-item" +
+          (selected ? " selected" : "") +
+          (expanded ? " expanded" : "");
 
         div.onclick = () => {
+          const sameStaff = String(state.selectedStaffId) === String(staff.id);
+
           state.selectedStaffId = staff.id;
+
+          if(isAdmin){
+            if(sameStaff && String(state.expandedStaffId) === String(staff.id)){
+              state.expandedStaffId = null;
+            }else{
+              state.expandedStaffId = staff.id;
+            }
+          }else{
+            state.expandedStaffId = null;
+          }
+
           renderAll();
         };
 
@@ -2306,6 +2357,10 @@
           state.selectedStaffId = null;
         }
 
+        if(String(state.expandedStaffId) === String(staffId)){
+          state.expandedStaffId = null;
+        }
+
         await loadAllData();
         alert("Staff deleted");
 
@@ -2458,6 +2513,7 @@
         isAdmin = true;
         localStorage.setItem("clockInAdmin", "true");
         closeAdminModal();
+        state.expandedStaffId = null;
         renderAll();
         alert("Admin login successful");
       }else{
@@ -2468,6 +2524,7 @@
     function logoutAdmin(){
       isAdmin = false;
       localStorage.removeItem("clockInAdmin");
+      state.expandedStaffId = null;
       renderAll();
       alert("Admin logged out");
     }
@@ -2755,6 +2812,7 @@
 
     els.staffSelect.addEventListener("change", e => {
       state.selectedStaffId = e.target.value || null;
+      state.expandedStaffId = null;
       renderAll();
     });
 
