@@ -1296,6 +1296,65 @@
       }
     }
 
+
+    /* Payroll page full-width calculator */
+    body.payroll-page .grid{
+      grid-template-columns:1fr !important;
+    }
+
+    body.payroll-page .grid > div:first-child{
+      display:none!important;
+    }
+
+    body.payroll-page #adminCalculatorCard{
+      width:100%;
+    }
+
+    body.payroll-page .payroll-calculator-grid{
+      grid-template-columns:260px 1fr;
+    }
+
+    .payroll-export-btn{
+      min-height:34px;
+      padding:7px 10px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:950;
+      width:auto;
+      white-space:nowrap;
+      background:var(--green);
+      color:#fff;
+      border:none;
+      cursor:pointer;
+    }
+
+    .payroll-export-btn:active{
+      transform:scale(.98);
+    }
+
+    @media(max-width:760px){
+      body.payroll-page .wrap{
+        min-width:760px;
+      }
+
+      body.payroll-page .grid{
+        grid-template-columns:1fr !important;
+      }
+
+      body.payroll-page .payroll-calculator-grid{
+        grid-template-columns:190px minmax(430px, 1fr) !important;
+        gap:8px;
+      }
+
+      body.payroll-page .multi-staff-list{
+        max-height:420px;
+      }
+
+      body.payroll-page #adminCalculatorCard{
+        margin-bottom:8px;
+      }
+    }
+
   </style>
 </head>
 
@@ -1428,7 +1487,10 @@
             </div>
 
             <div>
-              <button class="btn green" id="calcPayrollBtn">Calculate Report</button>
+              <div class="row" style="margin-bottom:8px;">
+                <button class="btn green" id="calcPayrollBtn">Calculate Report</button>
+                <button class="btn purple" id="exportSelectedPayrollBtn">Export Selected XLSX</button>
+              </div>
               <div class="table-wrap">
                 <table>
                   <thead>
@@ -1439,6 +1501,7 @@
                       <th>Break</th>
                       <th>Net time</th>
                       <th>Total pay</th>
+                      <th>Export</th>
                     </tr>
                   </thead>
                   <tbody id="payrollReportTable"></tbody>
@@ -1719,6 +1782,7 @@
       selectAllPayrollStaffBtn: document.getElementById("selectAllPayrollStaffBtn"),
       clearPayrollStaffBtn: document.getElementById("clearPayrollStaffBtn"),
       calcPayrollBtn: document.getElementById("calcPayrollBtn"),
+      exportSelectedPayrollBtn: document.getElementById("exportSelectedPayrollBtn"),
       dailySummaryDate: document.getElementById("dailySummaryDate"),
       calcDailyBtn: document.getElementById("calcDailyBtn"),
       dailyHoursValue: document.getElementById("dailyHoursValue"),
@@ -2670,7 +2734,7 @@
       if(!staff){
         els.weeklyHoursValue.textContent = "0.00";
         els.weeklyPayValue.textContent = "0.00";
-        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">No data</td></tr>`;
+        els.weeklyTable.innerHTML = `<tr><td colspan="7" class="small">No data</td></tr>`;
         return;
       }
 
@@ -2682,7 +2746,7 @@
       els.weeklyPayValue.textContent = money(totalPay);
 
       if(weeks.length === 0){
-        els.weeklyTable.innerHTML = `<tr><td colspan="6" class="small">No period summary</td></tr>`;
+        els.weeklyTable.innerHTML = `<tr><td colspan="7" class="small">No period summary</td></tr>`;
         return;
       }
 
@@ -2747,6 +2811,286 @@
       return state.staff.filter(staff => selectedSet.has(String(staff.id)));
     }
 
+    function exportPayrollStaffXlsx(staffId){
+      if(!requireAdmin()) return;
+
+      const staff = state.staff.find(s => String(s.id) === String(staffId));
+      if(!staff) return alert("Staff not found");
+
+      const fromDate = els.payrollCalcFrom.value;
+      const toDate = els.payrollCalcTo.value;
+
+      if(!fromDate || !toDate){
+        return alert("Please select date range");
+      }
+
+      if(new Date(fromDate) > new Date(toDate)){
+        return alert("From date must not be later than To date");
+      }
+
+      const sessions = filterSessionsByDateRange(
+        getSessionsForStaff(staff.id).filter(s => !!s.clock_out),
+        fromDate,
+        toDate
+      ).sort((a,b) => toDateSafe(a.clock_in) - toDateSafe(b.clock_in));
+
+      if(sessions.length === 0){
+        return alert("No completed sessions for this staff in this date range");
+      }
+
+      const rows = [
+        [
+          "Staff",
+          "Date",
+          "Clock in",
+          "Clock out",
+          "Break",
+          "Net time",
+          "Pay rate",
+          "Multiplier",
+          "Pay"
+        ]
+      ];
+
+      let totalNetMs = 0;
+      let totalPay = 0;
+      let totalBreakMs = 0;
+
+      sessions.forEach(s => {
+        const calc = calculateSessionPay(s);
+        const breakMs = minutesToMs(Number(s.break_minutes || 0));
+        const netMs = calcSessionNetMs(s);
+
+        totalBreakMs += breakMs;
+        totalNetMs += netMs;
+        totalPay += calc.pay;
+
+        rows.push([
+          s.staff_name || staff.name || "",
+          formatDateOnly(s.clock_in),
+          formatTimeOnly(s.clock_in),
+          formatTimeOnly(s.clock_out),
+          formatDuration(breakMs),
+          formatDuration(netMs),
+          Number(s.pay_rate || staff.pay_rate || 0),
+          calc.multiplier.toFixed(2),
+          Number(calc.pay.toFixed(2))
+        ]);
+      });
+
+      rows.push([]);
+      rows.push([
+        staff.name || "",
+        "TOTAL",
+        "",
+        "",
+        formatDuration(totalBreakMs),
+        formatDuration(totalNetMs),
+        "",
+        "",
+        Number(totalPay.toFixed(2))
+      ]);
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      ws["!cols"] = [
+        { wch: 18 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 14 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 12 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws, "Payroll");
+
+      const safeName = String(staff.name || "Staff")
+        .replace(/[\\/:*?"<>|]/g, "_")
+        .replace(/\s+/g, "_");
+
+      XLSX.writeFile(wb, `Payroll_${safeName}_${fromDate}_to_${toDate}.xlsx`);
+    }
+
+    function exportSelectedPayrollXlsx(){
+      if(!requireAdmin()) return;
+
+      const fromDate = els.payrollCalcFrom.value;
+      const toDate = els.payrollCalcTo.value;
+
+      if(!fromDate || !toDate){
+        return alert("Please select date range");
+      }
+
+      if(new Date(fromDate) > new Date(toDate)){
+        return alert("From date must not be later than To date");
+      }
+
+      const selectedStaff = getSelectedPayrollStaff();
+
+      if(selectedStaff.length === 0){
+        return alert("Please select at least one staff member");
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      const summaryRows = [
+        [
+          "Staff",
+          "Work days",
+          "Sessions",
+          "Break",
+          "Net time",
+          "Total pay"
+        ]
+      ];
+
+      let grandBreakMs = 0;
+      let grandNetMs = 0;
+      let grandPay = 0;
+      let hasAnyRows = false;
+
+      selectedStaff.forEach(staff => {
+        const sessions = filterSessionsByDateRange(
+          getSessionsForStaff(staff.id).filter(s => !!s.clock_out),
+          fromDate,
+          toDate
+        ).sort((a,b) => toDateSafe(a.clock_in) - toDateSafe(b.clock_in));
+
+        if(sessions.length === 0) return;
+
+        hasAnyRows = true;
+
+        const detailRows = [
+          [
+            "Staff",
+            "Date",
+            "Clock in",
+            "Clock out",
+            "Break",
+            "Net time",
+            "Pay rate",
+            "Multiplier",
+            "Pay"
+          ]
+        ];
+
+        const workDates = new Set();
+        let staffBreakMs = 0;
+        let staffNetMs = 0;
+        let staffPay = 0;
+
+        sessions.forEach(s => {
+          const d = toDateSafe(s.clock_in);
+          if(d) workDates.add(d.toLocaleDateString("en-CA"));
+
+          const calc = calculateSessionPay(s);
+          const breakMs = minutesToMs(Number(s.break_minutes || 0));
+          const netMs = calcSessionNetMs(s);
+
+          staffBreakMs += breakMs;
+          staffNetMs += netMs;
+          staffPay += calc.pay;
+
+          detailRows.push([
+            s.staff_name || staff.name || "",
+            formatDateOnly(s.clock_in),
+            formatTimeOnly(s.clock_in),
+            formatTimeOnly(s.clock_out),
+            formatDuration(breakMs),
+            formatDuration(netMs),
+            Number(s.pay_rate || staff.pay_rate || 0),
+            calc.multiplier.toFixed(2),
+            Number(calc.pay.toFixed(2))
+          ]);
+        });
+
+        detailRows.push([]);
+        detailRows.push([
+          staff.name || "",
+          "TOTAL",
+          "",
+          "",
+          formatDuration(staffBreakMs),
+          formatDuration(staffNetMs),
+          "",
+          "",
+          Number(staffPay.toFixed(2))
+        ]);
+
+        summaryRows.push([
+          staff.name || "",
+          workDates.size,
+          sessions.length,
+          formatDuration(staffBreakMs),
+          formatDuration(staffNetMs),
+          Number(staffPay.toFixed(2))
+        ]);
+
+        grandBreakMs += staffBreakMs;
+        grandNetMs += staffNetMs;
+        grandPay += staffPay;
+
+        const ws = XLSX.utils.aoa_to_sheet(detailRows);
+        ws["!cols"] = [
+          { wch: 18 },
+          { wch: 14 },
+          { wch: 14 },
+          { wch: 14 },
+          { wch: 12 },
+          { wch: 12 },
+          { wch: 10 },
+          { wch: 10 },
+          { wch: 12 }
+        ];
+
+        const safeSheetName = String(staff.name || "Staff")
+          .replace(/[\\/:*?\[\]]/g, "_")
+          .slice(0, 31) || "Staff";
+
+        let sheetName = safeSheetName;
+        let suffix = 2;
+        while(wb.SheetNames.includes(sheetName)){
+          sheetName = `${safeSheetName.slice(0, 27)}_${suffix}`;
+          suffix++;
+        }
+
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      });
+
+      if(!hasAnyRows){
+        return alert("No completed sessions for selected staff in this date range");
+      }
+
+      summaryRows.push([]);
+      summaryRows.push([
+        "TOTAL",
+        "",
+        "",
+        formatDuration(grandBreakMs),
+        formatDuration(grandNetMs),
+        Number(grandPay.toFixed(2))
+      ]);
+
+      const summaryWs = XLSX.utils.aoa_to_sheet(summaryRows);
+      summaryWs["!cols"] = [
+        { wch: 18 },
+        { wch: 10 },
+        { wch: 10 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 14 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
+      wb.SheetNames.unshift(wb.SheetNames.pop());
+
+      XLSX.writeFile(wb, `Payroll_Selected_${fromDate}_to_${toDate}.xlsx`);
+    }
+
     function renderPayrollReport(){
       if(!els.payrollReportTable) return;
 
@@ -2756,14 +3100,14 @@
       const toDate = els.payrollCalcTo.value;
 
       if(!fromDate || !toDate){
-        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">Select date range</td></tr>`;
+        els.payrollReportTable.innerHTML = `<tr><td colspan="7" class="small">Select date range</td></tr>`;
         els.payrollTotalHours.textContent = "00:00:00";
         els.payrollTotalPay.textContent = "0.00";
         return;
       }
 
       if(new Date(fromDate) > new Date(toDate)){
-        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">From date must not be later than To date</td></tr>`;
+        els.payrollReportTable.innerHTML = `<tr><td colspan="7" class="small">From date must not be later than To date</td></tr>`;
         els.payrollTotalHours.textContent = "00:00:00";
         els.payrollTotalPay.textContent = "0.00";
         return;
@@ -2772,7 +3116,7 @@
       const selectedStaff = getSelectedPayrollStaff();
 
       if(selectedStaff.length === 0){
-        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">Select at least one staff member</td></tr>`;
+        els.payrollReportTable.innerHTML = `<tr><td colspan="7" class="small">Select at least one staff member</td></tr>`;
         els.payrollTotalHours.textContent = "00:00:00";
         els.payrollTotalPay.textContent = "0.00";
         return;
@@ -2817,14 +3161,19 @@
           <td>${formatDuration(totalBreakMs)}</td>
           <td>${formatDuration(totalNetMs)}</td>
           <td><strong>${money(totalPay)}</strong></td>
+          <td><button class="payroll-export-btn" data-payroll-export="${staff.id}">Export XLSX</button></td>
         `;
 
         els.payrollReportTable.appendChild(tr);
       });
 
       if(!hasRows){
-        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">No completed sessions in this date range</td></tr>`;
+        els.payrollReportTable.innerHTML = `<tr><td colspan="7" class="small">No completed sessions in this date range</td></tr>`;
       }
+
+      els.payrollReportTable.querySelectorAll("[data-payroll-export]").forEach(btn => {
+        btn.addEventListener("click", () => exportPayrollStaffXlsx(btn.dataset.payrollExport));
+      });
 
       els.payrollTotalHours.textContent = formatDuration(grandNetMs);
       els.payrollTotalPay.textContent = money(grandPay);
@@ -3457,6 +3806,7 @@
     els.calcWeeklyBtn.addEventListener("click", renderWeeklySummary);
 
     els.calcPayrollBtn.addEventListener("click", renderPayrollReport);
+    els.exportSelectedPayrollBtn.addEventListener("click", exportSelectedPayrollXlsx);
     els.payrollCalcFrom.addEventListener("change", renderPayrollReport);
     els.payrollCalcTo.addEventListener("change", renderPayrollReport);
 
