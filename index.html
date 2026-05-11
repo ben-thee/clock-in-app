@@ -1193,6 +1193,109 @@
       }
     }
 
+
+    /* Dedicated payroll calculator */
+    .payroll-calculator-grid{
+      display:grid;
+      grid-template-columns:260px 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    .multi-staff-list{
+      display:grid;
+      gap:8px;
+      max-height:360px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      padding-right:2px;
+    }
+    .multi-staff-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:850;
+    }
+    .multi-staff-row input{width:auto;flex:0 0 auto}
+    .multi-staff-row.selected{background:var(--blue2);border-color:#93c5fd}
+    .payroll-total-bar{
+      margin-top:12px;
+      padding:14px;
+      border-radius:18px;
+      background:var(--green2);
+      border:1px solid #bbf7d0;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .payroll-total-bar .total-label{
+      font-size:12px;
+      color:#166534;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .payroll-total-bar .total-value{
+      margin-top:4px;
+      font-size:22px;
+      font-weight:950;
+      color:#14532d;
+    }
+    @media(max-width:760px){
+      body.admin-page .payroll-calculator-grid{
+        grid-template-columns:170px minmax(300px,1fr);
+        gap:8px;
+      }
+      body.admin-page .multi-staff-list{max-height:360px;gap:5px}
+      body.admin-page .multi-staff-row{
+        padding:7px 8px;
+        border-radius:12px;
+        gap:6px;
+        font-size:12px;
+      }
+      body.admin-page .payroll-total-bar{
+        padding:9px;
+        border-radius:14px;
+        gap:7px;
+      }
+      body.admin-page .payroll-total-bar .total-value{font-size:17px}
+    }
+
+
+    /* Three-page routing */
+    body.payroll-page #timeClockCard,
+    body.payroll-page #historyCard,
+    body.payroll-page #adminSummaryCard{
+      display:none!important;
+    }
+
+    body.payroll-page #adminCalculatorCard{
+      display:block!important;
+    }
+
+    body.payroll-page .grid{
+      grid-template-columns:360px 1fr;
+    }
+
+    @media(max-width:760px){
+      body.payroll-page .wrap{
+        min-width:760px;
+      }
+
+      body.payroll-page .grid{
+        grid-template-columns:150px 1fr;
+        gap:8px;
+      }
+
+      body.payroll-page .payroll-calculator-grid{
+        grid-template-columns:170px minmax(300px,1fr);
+      }
+    }
+
   </style>
 </head>
 
@@ -1210,6 +1313,8 @@
       <div class="admin-controls">
         <span id="adminBadge" class="pill off"></span>
         <button class="btn dark" id="openAdminBtn" style="width:auto;padding:10px 16px;">Admin Login</button>
+        <button class="btn blue" id="goPayrollBtn" style="width:auto;padding:10px 16px;display:none;">Payroll</button>
+        <button class="btn gray" id="backAdminBtn" style="width:auto;padding:10px 16px;display:none;">Back to Admin</button>
         <button class="btn red" id="logoutAdminBtn" style="width:auto;padding:10px 16px;display:none;">Logout</button>
       </div>
     </div>
@@ -1250,7 +1355,7 @@
       </div>
 
       <div>
-        <div class="card clock-card">
+        <div class="card clock-card" id="timeClockCard">
           <h2>Time Clock</h2>
           <div class="clock" id="liveClock">--:--:--</div>
 
@@ -1293,6 +1398,62 @@
               <div class="metric">
                 <div class="label">Net time</div>
                 <div class="value" id="sumNet">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card hidden" id="adminCalculatorCard">
+          <h2>Payroll Calculator</h2>
+          <div class="small">Multi-select staff, choose date range, then calculate payroll report.</div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="payrollCalcFrom">From</label>
+              <input type="date" id="payrollCalcFrom" />
+            </div>
+            <div>
+              <label for="payrollCalcTo">To</label>
+              <input type="date" id="payrollCalcTo" />
+            </div>
+          </div>
+
+          <div class="payroll-calculator-grid" style="margin-top:12px;">
+            <div>
+              <div class="row" style="margin-bottom:8px;">
+                <button class="btn gray" id="selectAllPayrollStaffBtn">All</button>
+                <button class="btn gray" id="clearPayrollStaffBtn">Clear</button>
+              </div>
+              <div class="multi-staff-list" id="payrollStaffMultiList"></div>
+            </div>
+
+            <div>
+              <button class="btn green" id="calcPayrollBtn">Calculate Report</button>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Staff</th>
+                      <th>Work days</th>
+                      <th>Sessions</th>
+                      <th>Break</th>
+                      <th>Net time</th>
+                      <th>Total pay</th>
+                    </tr>
+                  </thead>
+                  <tbody id="payrollReportTable"></tbody>
+                </table>
+              </div>
+
+              <div class="payroll-total-bar">
+                <div>
+                  <div class="total-label">Total net time</div>
+                  <div class="total-value" id="payrollTotalHours">00:00:00</div>
+                </div>
+                <div>
+                  <div class="total-label">Total pay</div>
+                  <div class="total-value" id="payrollTotalPay">0.00</div>
+                </div>
               </div>
             </div>
           </div>
@@ -1542,11 +1703,22 @@
       staffList: document.getElementById("staffList"),
       staffSelect: document.getElementById("staffSelect"),
       selectedStaffBanner: document.getElementById("selectedStaffBanner"),
+      timeClockCard: document.getElementById("timeClockCard"),
       liveClock: document.getElementById("liveClock"),
       statusBox: document.getElementById("statusBox"),
       historyCard: document.getElementById("historyCard"),
       historyTable: document.getElementById("historyTable"),
       adminSummaryCard: document.getElementById("adminSummaryCard"),
+      adminCalculatorCard: document.getElementById("adminCalculatorCard"),
+      payrollCalcFrom: document.getElementById("payrollCalcFrom"),
+      payrollCalcTo: document.getElementById("payrollCalcTo"),
+      payrollStaffMultiList: document.getElementById("payrollStaffMultiList"),
+      payrollReportTable: document.getElementById("payrollReportTable"),
+      payrollTotalHours: document.getElementById("payrollTotalHours"),
+      payrollTotalPay: document.getElementById("payrollTotalPay"),
+      selectAllPayrollStaffBtn: document.getElementById("selectAllPayrollStaffBtn"),
+      clearPayrollStaffBtn: document.getElementById("clearPayrollStaffBtn"),
+      calcPayrollBtn: document.getElementById("calcPayrollBtn"),
       dailySummaryDate: document.getElementById("dailySummaryDate"),
       calcDailyBtn: document.getElementById("calcDailyBtn"),
       dailyHoursValue: document.getElementById("dailyHoursValue"),
@@ -1580,6 +1752,8 @@
       closeAdminBtn: document.getElementById("closeAdminBtn"),
       loginAdminBtn: document.getElementById("loginAdminBtn"),
       logoutAdminBtn: document.getElementById("logoutAdminBtn"),
+      goPayrollBtn: document.getElementById("goPayrollBtn"),
+      backAdminBtn: document.getElementById("backAdminBtn"),
       adminId: document.getElementById("adminId"),
       adminPassword: document.getElementById("adminPassword"),
       adminBadge: document.getElementById("adminBadge"),
@@ -1623,6 +1797,7 @@
       },
       selectedStaffId: null,
       expandedStaffId: null,
+      selectedPayrollStaffIds: [],
       latestSummary: null
     };
 
@@ -1633,13 +1808,33 @@
     let isSavingGlobal = false;
 
     const params = new URLSearchParams(window.location.search);
+
+    const isPayrollPage =
+      params.get("payroll") === "1" ||
+      params.get("payroll") === "true" ||
+      window.location.hash === "#payroll";
+
     const isAdminPage =
-      params.get("admin") === "1" ||
-      params.get("admin") === "true" ||
-      window.location.hash === "#admin";
+      !isPayrollPage && (
+        params.get("admin") === "1" ||
+        params.get("admin") === "true" ||
+        window.location.hash === "#admin"
+      );
 
     function isStaffPage(){
-      return !isAdminPage;
+      return !isAdminPage && !isPayrollPage;
+    }
+
+    function getBasePath(){
+      return window.location.origin + window.location.pathname;
+    }
+
+    function goToAdminPage(){
+      window.location.href = getBasePath() + "?admin=1";
+    }
+
+    function goToPayrollPage(){
+      window.location.href = getBasePath() + "?payroll=1";
     }
 
     function setSyncInfo(text){
@@ -1988,6 +2183,13 @@
           ...d.data()
         }));
 
+        const validPayrollIds = new Set(state.staff.map(s => String(s.id)));
+        state.selectedPayrollStaffIds = (state.selectedPayrollStaffIds || []).filter(id => validPayrollIds.has(String(id)));
+
+        if(state.selectedPayrollStaffIds.length === 0 && state.staff.length){
+          state.selectedPayrollStaffIds = state.staff.map(s => s.id);
+        }
+
         if(!state.selectedStaffId && state.staff.length){
           state.selectedStaffId = state.staff[0].id;
         }
@@ -2021,6 +2223,8 @@
 
       if(!els.exportFrom.value) els.exportFrom.value = todayStr;
       if(!els.exportTo.value) els.exportTo.value = todayStr;
+      if(!els.payrollCalcFrom.value) els.payrollCalcFrom.value = todayStr;
+      if(!els.payrollCalcTo.value) els.payrollCalcTo.value = todayStr;
       if(!els.dailySummaryDate.value) els.dailySummaryDate.value = todayStr;
       if(!els.weeklyFrom.value) els.weeklyFrom.value = todayStr;
       if(!els.weeklyTo.value) els.weeklyTo.value = todayStr;
@@ -2037,34 +2241,60 @@
         els.adminBadge.className = "pill off hidden";
         els.openAdminBtn.style.display = "none";
         els.logoutAdminBtn.style.display = "none";
+        els.goPayrollBtn.style.display = "none";
+        els.backAdminBtn.style.display = "none";
+
+        els.timeClockCard.classList.remove("hidden");
         els.exportToolbar.classList.add("hidden");
         els.adminOnlyAddSection.classList.add("hidden");
         els.normalRefreshSection.classList.remove("hidden");
+
         els.historyCard.classList.add("hidden");
         els.adminSummaryCard.classList.add("hidden");
+        els.adminCalculatorCard.classList.add("hidden");
         return;
       }
 
-      if(isAdmin){
-        els.adminBadge.textContent = "Admin";
-        els.adminBadge.className = "pill admin";
-        els.logoutAdminBtn.style.display = "inline-block";
-        els.openAdminBtn.style.display = "none";
-        els.exportToolbar.classList.remove("hidden");
-        els.adminOnlyAddSection.classList.remove("hidden");
-        els.normalRefreshSection.classList.add("hidden");
-        els.historyCard.classList.remove("hidden");
-        els.adminSummaryCard.classList.remove("hidden");
-      }else{
-        els.adminBadge.textContent = "Admin Login Required";
+      if(!isAdmin){
+        els.adminBadge.textContent = isPayrollPage ? "Payroll Login Required" : "Admin Login Required";
         els.adminBadge.className = "pill off";
-        els.logoutAdminBtn.style.display = "none";
         els.openAdminBtn.style.display = "inline-block";
+        els.logoutAdminBtn.style.display = "none";
+        els.goPayrollBtn.style.display = "none";
+        els.backAdminBtn.style.display = "none";
+
         els.exportToolbar.classList.add("hidden");
         els.adminOnlyAddSection.classList.add("hidden");
         els.normalRefreshSection.classList.remove("hidden");
+
         els.historyCard.classList.add("hidden");
         els.adminSummaryCard.classList.add("hidden");
+        els.adminCalculatorCard.classList.add("hidden");
+        return;
+      }
+
+      els.adminBadge.textContent = isPayrollPage ? "Payroll" : "Admin";
+      els.adminBadge.className = "pill admin";
+      els.openAdminBtn.style.display = "none";
+      els.logoutAdminBtn.style.display = "inline-block";
+      els.goPayrollBtn.style.display = isAdminPage ? "inline-block" : "none";
+      els.backAdminBtn.style.display = isPayrollPage ? "inline-block" : "none";
+
+      els.adminOnlyAddSection.classList.remove("hidden");
+      els.normalRefreshSection.classList.add("hidden");
+
+      if(isPayrollPage){
+        els.timeClockCard.classList.add("hidden");
+        els.exportToolbar.classList.add("hidden");
+        els.historyCard.classList.add("hidden");
+        els.adminSummaryCard.classList.add("hidden");
+        els.adminCalculatorCard.classList.remove("hidden");
+      }else{
+        els.timeClockCard.classList.remove("hidden");
+        els.exportToolbar.classList.remove("hidden");
+        els.historyCard.classList.remove("hidden");
+        els.adminSummaryCard.classList.remove("hidden");
+        els.adminCalculatorCard.classList.add("hidden");
       }
     }
 
@@ -2430,6 +2660,136 @@
       });
     }
 
+    function renderPayrollStaffMultiList(){
+      if(!els.payrollStaffMultiList) return;
+
+      els.payrollStaffMultiList.innerHTML = "";
+
+      if(state.staff.length === 0){
+        els.payrollStaffMultiList.innerHTML = `<div class="small">No staff yet</div>`;
+        return;
+      }
+
+      const selectedSet = new Set((state.selectedPayrollStaffIds || []).map(String));
+
+      state.staff.forEach(staff => {
+        const row = document.createElement("label");
+        row.className = "multi-staff-row" + (selectedSet.has(String(staff.id)) ? " selected" : "");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = selectedSet.has(String(staff.id));
+
+        checkbox.addEventListener("change", () => {
+          if(checkbox.checked){
+            if(!state.selectedPayrollStaffIds.some(id => String(id) === String(staff.id))){
+              state.selectedPayrollStaffIds.push(staff.id);
+            }
+          }else{
+            state.selectedPayrollStaffIds = state.selectedPayrollStaffIds.filter(id => String(id) !== String(staff.id));
+          }
+
+          renderPayrollStaffMultiList();
+          renderPayrollReport();
+        });
+
+        const name = document.createElement("span");
+        name.textContent = staff.name || "Unnamed";
+
+        row.appendChild(checkbox);
+        row.appendChild(name);
+        els.payrollStaffMultiList.appendChild(row);
+      });
+    }
+
+    function getSelectedPayrollStaff(){
+      const selectedSet = new Set((state.selectedPayrollStaffIds || []).map(String));
+      return state.staff.filter(staff => selectedSet.has(String(staff.id)));
+    }
+
+    function renderPayrollReport(){
+      if(!els.payrollReportTable) return;
+
+      els.payrollReportTable.innerHTML = "";
+
+      const fromDate = els.payrollCalcFrom.value;
+      const toDate = els.payrollCalcTo.value;
+
+      if(!fromDate || !toDate){
+        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">Select date range</td></tr>`;
+        els.payrollTotalHours.textContent = "00:00:00";
+        els.payrollTotalPay.textContent = "0.00";
+        return;
+      }
+
+      if(new Date(fromDate) > new Date(toDate)){
+        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">From date must not be later than To date</td></tr>`;
+        els.payrollTotalHours.textContent = "00:00:00";
+        els.payrollTotalPay.textContent = "0.00";
+        return;
+      }
+
+      const selectedStaff = getSelectedPayrollStaff();
+
+      if(selectedStaff.length === 0){
+        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">Select at least one staff member</td></tr>`;
+        els.payrollTotalHours.textContent = "00:00:00";
+        els.payrollTotalPay.textContent = "0.00";
+        return;
+      }
+
+      let grandNetMs = 0;
+      let grandPay = 0;
+      let hasRows = false;
+
+      selectedStaff.forEach(staff => {
+        const sessions = filterSessionsByDateRange(
+          getSessionsForStaff(staff.id).filter(s => !!s.clock_out),
+          fromDate,
+          toDate
+        );
+
+        if(sessions.length === 0) return;
+
+        hasRows = true;
+
+        const workDates = new Set();
+        let totalBreakMs = 0;
+        let totalNetMs = 0;
+        let totalPay = 0;
+
+        sessions.forEach(s => {
+          const d = toDateSafe(s.clock_in);
+          if(d) workDates.add(d.toLocaleDateString("en-CA"));
+          totalBreakMs += minutesToMs(Number(s.break_minutes || 0));
+          totalNetMs += calcSessionNetMs(s);
+          totalPay += calculateSessionPay(s).pay;
+        });
+
+        grandNetMs += totalNetMs;
+        grandPay += totalPay;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(staff.name)}</strong></td>
+          <td>${workDates.size}</td>
+          <td>${sessions.length}</td>
+          <td>${formatDuration(totalBreakMs)}</td>
+          <td>${formatDuration(totalNetMs)}</td>
+          <td><strong>${money(totalPay)}</strong></td>
+        `;
+
+        els.payrollReportTable.appendChild(tr);
+      });
+
+      if(!hasRows){
+        els.payrollReportTable.innerHTML = `<tr><td colspan="6" class="small">No completed sessions in this date range</td></tr>`;
+      }
+
+      els.payrollTotalHours.textContent = formatDuration(grandNetMs);
+      els.payrollTotalPay.textContent = money(grandPay);
+    }
+
     function renderLatestSummary(){
       const data = state.latestSummary;
 
@@ -2453,9 +2813,14 @@
       renderStatus();
 
       if(isAdmin){
-        renderHistory();
-        renderDailySummary();
-        renderWeeklySummary();
+        if(isPayrollPage){
+          renderPayrollStaffMultiList();
+          renderPayrollReport();
+        }else if(isAdminPage){
+          renderHistory();
+          renderDailySummary();
+          renderWeeklySummary();
+        }
       }
 
       renderLatestSummary();
@@ -2613,6 +2978,8 @@
         if(String(state.expandedStaffId) === String(staffId)){
           state.expandedStaffId = null;
         }
+
+        state.selectedPayrollStaffIds = state.selectedPayrollStaffIds.filter(id => String(id) !== String(staffId));
 
         await loadAllData();
         alert("Staff deleted");
@@ -3049,7 +3416,25 @@
     els.calcDailyBtn.addEventListener("click", renderDailySummary);
     els.calcWeeklyBtn.addEventListener("click", renderWeeklySummary);
 
+    els.calcPayrollBtn.addEventListener("click", renderPayrollReport);
+    els.payrollCalcFrom.addEventListener("change", renderPayrollReport);
+    els.payrollCalcTo.addEventListener("change", renderPayrollReport);
+
+    els.selectAllPayrollStaffBtn.addEventListener("click", () => {
+      state.selectedPayrollStaffIds = state.staff.map(s => s.id);
+      renderPayrollStaffMultiList();
+      renderPayrollReport();
+    });
+
+    els.clearPayrollStaffBtn.addEventListener("click", () => {
+      state.selectedPayrollStaffIds = [];
+      renderPayrollStaffMultiList();
+      renderPayrollReport();
+    });
+
     els.openAdminBtn.addEventListener("click", openAdminModal);
+    els.goPayrollBtn.addEventListener("click", goToPayrollPage);
+    els.backAdminBtn.addEventListener("click", goToAdminPage);
     els.closeAdminBtn.addEventListener("click", closeAdminModal);
     els.loginAdminBtn.addEventListener("click", loginAdmin);
     els.logoutAdminBtn.addEventListener("click", logoutAdmin);
@@ -3103,9 +3488,10 @@
 
     async function init(){
       document.body.classList.toggle("admin-page", isAdminPage);
-      document.body.classList.toggle("staff-page", !isAdminPage);
+      document.body.classList.toggle("payroll-page", isPayrollPage);
+      document.body.classList.toggle("staff-page", isStaffPage());
 
-      isAdmin = isAdminPage && localStorage.getItem("clockInAdmin") === "true";
+      isAdmin = (isAdminPage || isPayrollPage) && localStorage.getItem("clockInAdmin") === "true";
 
       updateAdminUI();
       setDefaultDateFilters();
@@ -3115,7 +3501,7 @@
       updateClock();
       setInterval(updateClock, 1000);
 
-      if(isAdminPage && !isAdmin){
+      if((isAdminPage || isPayrollPage) && !isAdmin){
         setTimeout(openAdminModal, 250);
       }
     }
