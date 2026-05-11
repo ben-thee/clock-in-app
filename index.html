@@ -2235,7 +2235,47 @@
       els.publicHolidayApplyAll.checked = boolFromValue(state.settings.public_holiday_apply_all);
     }
 
+
+    function ensureRouteButtons(){
+      const controls = document.querySelector(".admin-controls");
+      if(!controls) return;
+
+      if(!document.getElementById("goPayrollBtn")){
+        const btn = document.createElement("button");
+        btn.className = "btn blue";
+        btn.id = "goPayrollBtn";
+        btn.textContent = "Payroll";
+        btn.style.width = "auto";
+        btn.style.padding = "10px 16px";
+        btn.style.display = "none";
+        btn.addEventListener("click", goToPayrollPage);
+
+        const logout = document.getElementById("logoutAdminBtn");
+        if(logout) controls.insertBefore(btn, logout);
+        else controls.appendChild(btn);
+      }
+
+      if(!document.getElementById("backAdminBtn")){
+        const btn = document.createElement("button");
+        btn.className = "btn gray";
+        btn.id = "backAdminBtn";
+        btn.textContent = "Back to Admin";
+        btn.style.width = "auto";
+        btn.style.padding = "10px 16px";
+        btn.style.display = "none";
+        btn.addEventListener("click", goToAdminPage);
+
+        const logout = document.getElementById("logoutAdminBtn");
+        if(logout) controls.insertBefore(btn, logout);
+        else controls.appendChild(btn);
+      }
+
+      els.goPayrollBtn = document.getElementById("goPayrollBtn");
+      els.backAdminBtn = document.getElementById("backAdminBtn");
+    }
+
     function updateAdminUI(){
+      ensureRouteButtons();
       if(isStaffPage()){
         els.adminBadge.textContent = "";
         els.adminBadge.className = "pill off hidden";
@@ -3493,6 +3533,7 @@
 
       isAdmin = (isAdminPage || isPayrollPage) && localStorage.getItem("clockInAdmin") === "true";
 
+      ensureRouteButtons();
       updateAdminUI();
       setDefaultDateFilters();
 
